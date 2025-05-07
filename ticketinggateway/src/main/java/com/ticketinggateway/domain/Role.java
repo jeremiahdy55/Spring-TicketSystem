@@ -3,6 +3,7 @@ package com.ticketinggateway.domain;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,7 +23,7 @@ public class Role {
 	@Enumerated(EnumType.STRING)
 	private RoleName roleName;
 	
-	@ManyToMany(mappedBy="roles")
+	@ManyToMany(mappedBy="roles", cascade=CascadeType.ALL)
 	Set<Employee> employee = new HashSet<>();
 
 	public long getRoleId() {

@@ -29,7 +29,7 @@ public class AppConfig {
 	@Bean
 	public DataSource dataSource(){
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setUrl("jdbc:mysql://localhost:3306/TICKETINGGATEWAY"); //spring.datasource.url
+		dataSource.setUrl("jdbc:mysql://localhost:3306/TICKETSYSTEM"); //spring.datasource.url
 		dataSource.setDriverClassName("com.mysql.jdbc.Driver"); //spring.datasource.driverClassName
 		dataSource.setUsername("root"); //spring.datasource.username
 		dataSource.setPassword("mysqlpassword"); //spring.datasource.password

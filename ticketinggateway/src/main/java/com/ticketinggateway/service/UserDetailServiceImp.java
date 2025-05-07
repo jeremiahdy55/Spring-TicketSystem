@@ -12,28 +12,28 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.ticketinggateway.domain.Role;
-import com.ticketinggateway.domain.User;
+import com.ticketinggateway.domain.Employee;
 
 @Service
 public class UserDetailServiceImp implements UserDetailsService {
 
 	@Autowired
-	UserService userService;
+	EmployeeService employeeService;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userService.findByUserName(username);
-		if(user == null) {
+		Employee employee = employeeService.findByName(username);
+		if(employee == null) {
 			throw new UsernameNotFoundException(username);
 		}
 		Set<GrantedAuthority> ga = new HashSet<>();
-		Set<Role> roles = user.getRoles();
+		Set<Role> roles = employee.getRoles();
 		for (Role role : roles) {
-			System.out.println("UserDetailService.java: role.getRoleName()" + role.getRoleName().name());
+			System.out.println("UserDetailService.java: role.getRoleName()" + role.getRoleName());
 			ga.add(new SimpleGrantedAuthority(role.getRoleName().name()));
 		}
 
-		return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getUserPassword(), ga);
+		return new org.springframework.security.core.userdetails.User(employee.getName(), employee.getPassword(), ga);
 	}
 
 }

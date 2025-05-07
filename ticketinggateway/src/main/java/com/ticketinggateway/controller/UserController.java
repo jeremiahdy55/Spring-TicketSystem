@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.ticketinggateway.domain.RoleName;
-import com.ticketinggateway.domain.User;
-import com.ticketinggateway.service.UserService;
+import com.ticketinggateway.domain.Employee;
+import com.ticketinggateway.service.EmployeeService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +27,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @SessionAttributes("user")
 public class UserController {
 	
-	@Autowired UserService userService;
+	@Autowired EmployeeService employeeService;
 
 	@GetMapping(value = "/login")
 	public String login(@RequestParam(required = false) String logout, @RequestParam(required = false) String error,
@@ -51,11 +51,17 @@ public class UserController {
 
 	@PostMapping(value = "/signup")
 	public String signup(@RequestParam String userEmail, @RequestParam String userName, @RequestParam String password) {
-		User user = new User();
-		user.setUserName(userName);
+		Employee user = new Employee();
+		user.setName(userName);
 		user.setEmail(userEmail);
-		user.setUserPassword(password);
-		userService.save(user, RoleName.ADMIN);
+		user.setPassword(password);
+
+		//TODO Change UI to allow
+		user.setDepartment("default department");
+		user.setManagerId(null); // TODO also make a reference constraint that references employee.id
+		user.setProject("default project");
+
+		employeeService.save(user, RoleName.ADMIN); //TODO change to default:USER
 		return "login";
 
 	}

@@ -50,18 +50,26 @@ public class UserController {
 	}
 
 	@PostMapping(value = "/signup")
-	public String signup(@RequestParam String userEmail, @RequestParam String userName, @RequestParam String password) {
+	public String signup(
+		@RequestParam String userEmail, 
+		@RequestParam String userName, 
+		@RequestParam String password,
+		@RequestParam String role
+		) {
 		Employee user = new Employee();
 		user.setName(userName);
 		user.setEmail(userEmail);
 		user.setPassword(password);
+
+		//TODO change this after testing to prevent signups as manager/admin without proper access
+		//RoleName.valueOf(role);
 
 		//TODO Change UI to allow
 		user.setDepartment("default department");
 		user.setManagerId(null); // TODO also make a reference constraint that references employee.id
 		user.setProject("default project");
 
-		employeeService.save(user, RoleName.ADMIN); //TODO change to default:USER
+		employeeService.save(user, RoleName.valueOf(role)); //TODO change to default:USER
 		return "login";
 
 	}

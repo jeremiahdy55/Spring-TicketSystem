@@ -15,9 +15,7 @@ import com.ticketinggateway.repository.RoleRepository;
 import com.ticketinggateway.repository.EmployeeRepository;
 
 @Service
-public class EmployeeService {
-// public class EmployeeService implements EmployeeServiceInterface {
-
+public class EmployeeService implements EmployeeServiceInterface {
 
 	@Autowired
 	EmployeeRepository employeeRepository;
@@ -42,13 +40,28 @@ public class EmployeeService {
 		return user;
 	}
 
-
 	public Employee findById(long id) {
 		Optional<Employee> u = employeeRepository.findById(id);
 		if(u.isPresent()) {
 			return u.get();
 		} else
 		return null;
+	}
+
+	public boolean existsById(long id) {
+		return employeeRepository.existsById(id);
+	}
+
+	public boolean isManager(long id) {
+		Employee e = findById(id);
+		boolean return_val = false;
+		if (e != null) {
+			for (Role r : e.getRoles()) {
+				return_val = return_val || r.getRoleName() == RoleName.MANAGER;
+			}
+		}
+		System.out.println(return_val);
+		return return_val;
 	}
 
 	public void deleteById(long id) {

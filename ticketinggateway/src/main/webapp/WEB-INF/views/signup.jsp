@@ -19,6 +19,7 @@
 		Email: <input type='text' name='userEmail'/></br>
 		Password: <input type='text' name='password'/></br>
 		Role: <input type='text' name='role'/></br>
+		Manager ID: <input type='text' name='managerId'/></br>
 		<input type='submit' value='SIGNUP' id='signup'>
 		</form>
 	</body>

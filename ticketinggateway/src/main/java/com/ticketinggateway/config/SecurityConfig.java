@@ -46,7 +46,7 @@ public class SecurityConfig {
 			.flag(true).and()
 			.authorizeRequests().requestMatchers("/").permitAll().and()
 			      //.exceptionHandling().accessDeniedPage("/accessDeniedPage").and()
-			.authorizeRequests().requestMatchers("/homePage").hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
+			.authorizeRequests().requestMatchers("/homePage", "/testUI").hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
 		.formLogin()
 			.loginPage("/login")
 			.defaultSuccessUrl("/homePage").permitAll().and()

@@ -1,5 +1,7 @@
 package com.ticketmicroservice.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,30 +52,6 @@ public class TicketService {
     // DELETE
     public void deleteTicket(Long id) {
         ticketRepository.deleteById(id);
-    }
-
-    // Convert to JsonNode object
-    public JsonNode convertToJsonNode(Ticket ticket) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Employee assignee = ticket.getAssignee();
-        long assigneeId = 0;
-        if (assignee != null) {
-            assigneeId = ticket.getAssignee().getId();
-        }
-        Map<String, Object> data = new HashMap<>();
-        data.put("id", ticket.getId());
-        data.put("title", ticket.getTitle());
-        data.put("description", ticket.getDescription());
-        data.put("createdBy", ticket.getCreatedBy().getId());
-        data.put("assignee", assigneeId);
-        data.put("priority", ticket.getPriority().name());
-        data.put("status", ticket.getStatus().name());
-        data.put("creationDate", ticket.getCreationDate().toString());
-        data.put("category", ticket.getCategory());
-        data.put("fileAttachmentPath", ticket.getFileAttachmentPath());
-        JsonNode jsonNode = objectMapper.valueToTree(data);
-
-        return jsonNode;
     }
 
     // READ (ALL)
@@ -130,10 +108,34 @@ public class TicketService {
             ticket.setStatus(TicketStatus.valueOf(action));
             Ticket returnTicket = ticketRepository.save(ticket);
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
-            TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), null);
+            TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), comments);
             ticketHistoryService.createTicketHistory(actionLog);
             return returnTicket;
         }
+    }
+
+    // Convert to JsonNode object
+    public JsonNode convertToJsonNode(Ticket ticket) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Employee assignee = ticket.getAssignee();
+        long assigneeId = 0;
+        if (assignee != null) {
+            assigneeId = ticket.getAssignee().getId();
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", ticket.getId());
+        data.put("title", ticket.getTitle());
+        data.put("description", ticket.getDescription());
+        data.put("createdBy", ticket.getCreatedBy().getId());
+        data.put("assignee", assigneeId);
+        data.put("priority", ticket.getPriority().name());
+        data.put("status", ticket.getStatus().name());
+        data.put("creationDate", ticket.getCreationDate().toString());
+        data.put("category", ticket.getCategory());
+        data.put("fileAttachmentPath", ticket.getFileAttachmentPath());
+        JsonNode jsonNode = objectMapper.valueToTree(data);
+
+        return jsonNode;
     }
 
     // Get all TicketHistory items associated with ticketId

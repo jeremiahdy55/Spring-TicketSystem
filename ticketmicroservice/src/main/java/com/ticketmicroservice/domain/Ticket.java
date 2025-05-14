@@ -2,17 +2,22 @@ package com.ticketmicroservice.domain;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -54,14 +59,19 @@ public class Ticket {
 
     private String category;
 
+    // @ManyToMany(fetch = FetchType.EAGER)
+	// @JoinTable(name="ticket_filePaths")
+	// private List<String> fileAttachmentPaths = new ArrayList<>();
+
     private String fileAttachmentPath;
+
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TicketHistory> history = new ArrayList<>();
 
     //Default constructor
     public Ticket() {}
-    
+
     // Custom constructor (omits id)
     public Ticket(
         String title,

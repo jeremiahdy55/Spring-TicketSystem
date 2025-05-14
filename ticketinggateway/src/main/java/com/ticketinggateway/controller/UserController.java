@@ -106,4 +106,18 @@ public class UserController {
 		return "homePage";
 	}
 
+	//TODO delete me later
+	@GetMapping("/testUI")
+	public String testGetTickets(Model model, Principal principal) {
+		Employee thisUser = employeeService.findByName(principal.getName());
+		model.addAttribute("userId", thisUser.getId());
+		return "testUI";
+	}
+
+	@GetMapping("path")
+	public String getMethodName(@RequestParam String param) {
+		return new String();
+	}
+	
+
 }

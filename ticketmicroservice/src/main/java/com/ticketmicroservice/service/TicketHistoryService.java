@@ -53,6 +53,7 @@ public class TicketHistoryService {
         data.put("action", ticketHistory.getAction().name());
         data.put("actionBy", ticketHistory.getActionBy().getId());
         data.put("actionDate", ticketHistory.getActionDate().toString());
+        data.put("comments", ticketHistory.getComments());
         JsonNode jsonNode = objectMapper.valueToTree(data);
         return jsonNode;
     }

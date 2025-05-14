@@ -23,15 +23,33 @@ uri="http://www.springframework.org/tags/form" prefix="frm" %>
     <meta charset="UTF-8" />
     <title>HomePage</title>
   </head>
-  <body style="height: 100vh" class="w-100">
-    <div class="mt-5 d-flex justify-content-center">
-      <button class="btn btn-primary mt-5">USER</button>
+  <body>
+    <div class="container mt-5">
+      <sec:authorize access="isAuthenticated()">
+        <h2>Welcome, <sec:authentication property="name"/>!</h2>
+      </sec:authorize>
+      <button class="btn btn-primary" id="getTicketsBtn">Get All Tickets</button>
+      <br>
+      <br>
+      <input type="text" id="ticketIdToGetHistory" placeholder="history: ticket ID" />
+      <br>
+      <button class="btn btn-primary" id="getTicketHistoryBtn">Get Ticket History</button>
+      <br>
+      <br>
+      <button class="btn btn-primary">USER</button>
+      <br>
+      <br>
       <sec:authorize access='hasAnyAuthority("ADMIN")'>
-        <button class="btn btn-primary mt-5">ADMIN</button>
+        <button class="btn btn-primary">ADMIN</button>
       </sec:authorize>
+      <br>
+      <br>
       <sec:authorize access='hasAnyAuthority("MANAGER")'>
-        <button class="btn btn-primary mt-5">MANAGER</button>
+        <button class="btn btn-primary">MANAGER</button>
       </sec:authorize>
-    </div>
+      <br>
+      <br>
+      <div id="result" class="mt-4"></div>
+  </div>
   </body>
 </html>

@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -31,9 +30,9 @@ public class SecurityConfig {
 			.authorizeRequests().requestMatchers("/").permitAll().and()
 			      //.exceptionHandling().accessDeniedPage("/accessDeniedPage").and()
 			.authorizeRequests().requestMatchers("/homePage", "/testUI","/getHistory/*","/getTicket/*","/getAllTickets", "/deleteTicket/*").hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
-			.authorizeRequests().requestMatchers("/approveTicket/*", "/rejectTicket/*").hasAnyAuthority("MANAGER").and()
-			.authorizeRequests().requestMatchers("/reopenTicket/*", "/closeTicket/*").hasAnyAuthority("USER").and()
-			.authorizeRequests().requestMatchers("/resolveTicket/*").hasAnyAuthority("ADMIN").and()
+			.authorizeRequests().requestMatchers("/approveTicket/*", "/rejectTicket/*", "/getOpenTickets").hasAnyAuthority("MANAGER").and()
+			.authorizeRequests().requestMatchers("/reopenTicket/*", "/closeTicket/*", "/getUserTickets/*").hasAnyAuthority("USER").and()
+			.authorizeRequests().requestMatchers("/resolveTicket/*", "/getAssignedTickets/*").hasAnyAuthority("ADMIN").and()
 
 		.formLogin()
 			.loginPage("/login")

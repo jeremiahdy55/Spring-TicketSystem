@@ -33,16 +33,19 @@ public class TicketMicroserviceClient {
     @Autowired
     EmployeeService employeeService;
 
-    private static final String postTicketURL = "http://localhost:8282/postTicket";
-    private static final String getAllTicketsURL = "http://localhost:8282/getAllTickets";
-    private static final String getTicketURL = "http://localhost:8282/getTicket/";
-    private static final String approveTicketURL = "http://localhost:8282/approveTicket/";
-    private static final String rejectTicketURL = "http://localhost:8282/rejectTicket/";
-    private static final String resolveTicketURL = "http://localhost:8282/resolveTicket/";
-    private static final String reopenTicketURL = "http://localhost:8282/reopenTicket/";
-    private static final String closeTicketURL = "http://localhost:8282/closeTicket/";
-    private static final String getHistoryURL = "http://localhost:8282/getHistory/";
-    private static final String deleteTicketURL = "http://localhost:8282/deleteTicket/";
+    private static final String postTicketURL           = "http://localhost:8282/postTicket";
+    private static final String getAllTicketsURL        = "http://localhost:8282/getAllTickets";
+    private static final String getTicketURL            = "http://localhost:8282/getTicket/";
+    private static final String getHistoryURL           = "http://localhost:8282/getHistory/";
+    private static final String getOpenTicketsURL       = "http://localhost:8282/getOpenTickets";
+    private static final String getTicketsByAssigneeURL  = "http://localhost:8282/getAssignedTickets/";
+    private static final String getTicketsByCreatedByURL = "http://localhost:8282/getUserTickets/";
+    private static final String approveTicketURL        = "http://localhost:8282/approveTicket/";
+    private static final String rejectTicketURL         = "http://localhost:8282/rejectTicket/";
+    private static final String resolveTicketURL        = "http://localhost:8282/resolveTicket/";
+    private static final String reopenTicketURL         = "http://localhost:8282/reopenTicket/";
+    private static final String closeTicketURL          = "http://localhost:8282/closeTicket/";
+    private static final String deleteTicketURL         = "http://localhost:8282/deleteTicket/";
 
     // GET TicketHistory, calls ticketmicroservice--TicketController.getAllTickets()
     @RequestMapping(value = "/getAllTickets", method = RequestMethod.GET)
@@ -110,6 +113,72 @@ public class TicketMicroserviceClient {
         return responseEntity.getBody();
     }
 
+    // GET Tickets assigned to current ADMIN Employee, calls ticketmicroservice--TicketController.getTicketsByAssigneeId()
+    @RequestMapping(value = "/getAssignedTickets/{assigneeId}", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonNode getTicketsByAssigneeIdFromTicketMicroservice(@PathVariable Long assigneeId) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+
+        // Set the header to specify that only JSON data is accepted as response
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        // requestEntity encompasses both the body (there is none here) and the headers of the request
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(
+                getTicketsByAssigneeURL+assigneeId,
+                HttpMethod.GET,
+                requestEntity,
+                JsonNode.class);
+
+        return responseEntity.getBody();
+    }
+
+    // GET Tickets created by current USER Employee, calls ticketmicroservice--TicketController.getTicketsByUserId()
+    @RequestMapping(value = "/getUserTickets/{createdById}", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonNode getTicketsByCreatedByIdFromTicketMicroservice(@PathVariable Long createdById) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+
+        // Set the header to specify that only JSON data is accepted as response
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        // requestEntity encompasses both the body (there is none here) and the headers of the request
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(
+                getTicketsByCreatedByURL+createdById,
+                HttpMethod.GET,
+                requestEntity,
+                JsonNode.class);
+
+        return responseEntity.getBody();
+    }
+
+    // GET Tickets created by current USER Employee, calls ticketmicroservice--TicketController.getTicketsByUserId()
+    @RequestMapping(value = "/getOpenTickets", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonNode getOpenTicketsFromTicketMicroservice() {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+
+        // Set the header to specify that only JSON data is accepted as response
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        // requestEntity encompasses both the body (there is none here) and the headers of the request
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(
+                getOpenTicketsURL,
+                HttpMethod.GET,
+                requestEntity,
+                JsonNode.class);
+
+        return responseEntity.getBody();
+    }
+
     // PUT Ticket, calls ticketmicroservice--TicketController.approveTicket()
     // Approves Ticket and is only accessible (frontend) by MANAGER(S)
     @RequestMapping(value = "/approveTicket/{ticketId}", method = RequestMethod.PUT)
@@ -165,6 +234,7 @@ public class TicketMicroserviceClient {
 
         System.out.println(responseEntity.getBody());
     }
+    
 
     // PUT Ticket, calls ticketmicroservice--TicketController.resolveTicket()
     // Resolve Ticket and is only accessible (frontend) by ADMIN(S)

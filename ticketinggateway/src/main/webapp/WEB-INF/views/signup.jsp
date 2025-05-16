@@ -17,9 +17,24 @@
 		<form action='/signup' method='post'>	
 		UserName: <input type='text' name='userName'/></br>
 		Email: <input type='text' name='userEmail'/></br>
-		Password: <input type='text' name='password'/></br>
-		Role: <input type='text' name='role'/></br>
-		Manager ID: <input type='text' name='managerId'/></br>
+		Password: <input type='password' name='password'/></br>
+		Manager ID: <input type='number' name='managerId'/></br>
+		Department: <input type='text' name='department'/></br>
+		Project: <input type='text' name='project'/></br>
+		<h5>Role:</h5>
+		<label>
+			<input type='checkbox' name='roles' value="ADMIN"> ADMIN
+		</label>
+		<br>
+		<label>
+			<input type='checkbox' name='roles' value="MANAGER"> MANAGER
+		</label>
+		<br>
+		<label>
+			<input type='checkbox' name='roles' value="USER"> USER
+		</label>
+		<br>
+
 		<input type='submit' value='SIGNUP' id='signup'>
 		</form>
 	</body>

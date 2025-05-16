@@ -1,6 +1,8 @@
 package com.ticketinggateway.controller;
 
 import java.security.Principal;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -55,29 +57,22 @@ public class UserController {
 		@RequestParam String userEmail, 
 		@RequestParam String userName, 
 		@RequestParam String password,
-		@RequestParam String role, // TODO make it so I can delete this, need to implement manual role permission/deletion
-		@RequestParam String managerId,
+		@RequestParam List<String> roles,
 		@RequestParam String department,
-		@RequestParam String project
+		@RequestParam String project,
+		@RequestParam(required=false) Long managerId
 		) {
-
-		// Check that the managerId exists
-		try {
-			long manager_id = Long.valueOf(managerId);
-		} catch (NumberFormatException e) {
-			System.out.println("Error: " + e.getMessage());
-			System.out.println("managerId is not an acceptable long value");
-			return "signup";
-		}
-		long manager_id = Long.valueOf(managerId);
-		if (!employeeService.existsById(manager_id)) {
-			// If the Employee does not exist
-			System.out.println("employee with managerId does not exist!");
-			return "signup";
-		} else if (!employeeService.isManager(manager_id)) {
-			// If the Employee is not a RoleName.MANAGER
-			System.out.println("employee with managerId is not a MANAGER!");
-			return "signup";
+		if (managerId != null) {
+			// Check that the managerId exists
+			if (!employeeService.existsById(managerId)) {
+				// If the Employee does not exist
+				System.out.println("employee with managerId does not exist!");
+				return "signup";
+			} else if (!employeeService.isManager(managerId)) {
+				// If the Employee is not a RoleName.MANAGER
+				System.out.println("employee with managerId is not a MANAGER!");
+				return "signup";
+			}
 		}
 
 		// Create the Employee
@@ -85,15 +80,11 @@ public class UserController {
 		user.setName(userName);
 		user.setEmail(userEmail);
 		user.setPassword(password);
-		user.setManagerId(manager_id);
-
-		//TODO Change UI to allow
-		user.setDepartment(department); // DROPDOWN MENU
-		user.setProject(project); // DROPDOWN MENU
-
-		employeeService.save(user, RoleName.valueOf(role)); //TODO change to default:USER
+		user.setManagerId(managerId);
+		user.setDepartment(department);
+		user.setProject(project);
+		employeeService.save(user, roles);
 		return "login";
-
 	}
 	
 	@GetMapping("/register")

@@ -27,14 +27,16 @@ public class EmployeeService {
 		return employeeRepository.findAll();
 	}
 
-	public Employee save(Employee e, RoleName roleName) {
-		long roleId = roleRepository.findIdByRoleName(roleName);
+	public Employee save(Employee e, List<String> roles) {
 		HashSet<Role> roleSet = new HashSet<>();
+		for (String role: roles) {
+			long roleId = roleRepository.findIdByRoleName(RoleName.valueOf(role));
+			Role userRole = roleRepository.findById(roleId).orElse(null);
+			roleSet.add(userRole);
+		}
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String hashedPassword = passwordEncoder.encode(e.getPassword());
 		e.setPassword(hashedPassword);
-		Role userRole = roleRepository.findById(roleId).orElse(null);
-		roleSet.add(userRole);
 		e.setRoles(roleSet);
 		Employee user = employeeRepository.save(e);
 		return user;

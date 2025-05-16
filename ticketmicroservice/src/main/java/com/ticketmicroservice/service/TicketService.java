@@ -73,6 +73,39 @@ public class TicketService {
         } 
     }
 
+    // READ (ALL) 
+    // WHERE ASSIGNEE.ID = assigneeId
+    public List<JsonNode> getTicketsByAssigneeId(Long assigneeId) {
+        List<Ticket> tickets = ticketRepository.findByAssignee_Id(assigneeId);
+        List<JsonNode> returnList = new ArrayList<JsonNode>();
+        for (Ticket ticket : tickets) {
+            returnList.add(convertToJsonNode(ticket));
+        }
+        return returnList;
+    }
+
+     // READ (ALL) 
+     // WHERE CREATEDBY.ID = createdById
+     public List<JsonNode> getTicketsByCreatedById(Long createdById) {
+        List<Ticket> tickets = ticketRepository.findByCreatedBy_Id(createdById);
+        List<JsonNode> returnList = new ArrayList<JsonNode>();
+        for (Ticket ticket : tickets) {
+            returnList.add(convertToJsonNode(ticket));
+        }
+        return returnList;
+    }
+
+     // READ (ALL) 
+     // WHERE STATUS IN (statuses)
+     public List<JsonNode> getTicketsByStatus(List<TicketStatus> statuses) {
+        List<Ticket> tickets = ticketRepository.findByStatusIn(statuses);
+        List<JsonNode> returnList = new ArrayList<JsonNode>();
+        for (Ticket ticket : tickets) {
+            returnList.add(convertToJsonNode(ticket));
+        }
+        return returnList;
+    }
+
     // Check if Ticket exists
     public boolean existsById(Long id) {
         return ticketRepository.existsById(id);

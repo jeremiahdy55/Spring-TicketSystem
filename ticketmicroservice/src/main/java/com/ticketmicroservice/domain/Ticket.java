@@ -5,17 +5,16 @@ import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -57,8 +56,13 @@ public class Ticket {
 
     private String category;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name="ticket_filePaths")
+    // Tell Spring to automatically store these String values in a separate table
+    @ElementCollection
+    @CollectionTable(
+        name = "ticket_fileAttachmentPaths",            // specify table name
+        joinColumns = @JoinColumn(name = "ticket_id")   // specify FK columns
+    )
+    @Column(name = "fileAttachmentPath")                // specify column name
 	private List<String> fileAttachmentPaths = new ArrayList<>();
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -112,6 +112,22 @@ public class TicketController {
 		return ResponseEntity.ok(ticketService.getHistory(ticketId));
     }
 
+    @RequestMapping(value="/getAssignedTickets/{assigneeId}", method=RequestMethod.GET)
+    public ResponseEntity<List<JsonNode>> getTicketsByAssigneeId(@PathVariable Long assigneeId) {
+		return ResponseEntity.ok(ticketService.getTicketsByAssigneeId(assigneeId));
+    }
+
+    @RequestMapping(value="/getUserTickets/{createdById}", method=RequestMethod.GET)
+    public ResponseEntity<List<JsonNode>> getTicketsByUserId(@PathVariable Long createdById) {
+		return ResponseEntity.ok(ticketService.getTicketsByCreatedById(createdById));
+    }
+
+    @RequestMapping(value="/getOpenTickets", method=RequestMethod.GET)
+    public ResponseEntity<List<JsonNode>> getOpenTickets() {
+        List<TicketStatus> statuses = List.of(TicketStatus.OPEN, TicketStatus.PENDING_APPROVAL, TicketStatus.REOPENED);
+		return ResponseEntity.ok(ticketService.getTicketsByStatus(statuses));
+    }
+
     @RequestMapping(value="/deleteTicket/{id}", method=RequestMethod.DELETE)
     public ResponseEntity<String> deleteTicket(@PathVariable Long ticketId) {
         if (!ticketService.existsById(ticketId)) {

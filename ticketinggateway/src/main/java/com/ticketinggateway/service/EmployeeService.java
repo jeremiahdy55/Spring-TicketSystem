@@ -15,7 +15,7 @@ import com.ticketinggateway.repository.RoleRepository;
 import com.ticketinggateway.repository.EmployeeRepository;
 
 @Service
-public class EmployeeService implements EmployeeServiceInterface {
+public class EmployeeService {
 
 	@Autowired
 	EmployeeRepository employeeRepository;

@@ -35,7 +35,7 @@ public class TicketController {
     TicketService ticketService;
 
     // Service for domain.TicketHistory - CRD operations available through Service
-    //(Update not allowed, personal implementation as this is a history object and shouldn't rewrite history unless corrupted data)
+    // (Update not allowed, personal implementation as this is a history object and shouldn't rewrite history unless corrupted data)
     // Assume data has not been corrupted for the scale of this project
     @Autowired
     TicketHistoryService ticketHistoryService;
@@ -113,19 +113,19 @@ public class TicketController {
     }
 
     @RequestMapping(value="/deleteTicket/{id}", method=RequestMethod.DELETE)
-    public ResponseEntity<?> deleteTicket(@PathVariable Long id) {
-        if (!ticketService.existsById(id)) {
-            return ResponseEntity.notFound().build(); // 404 error code if not ticket to delete
+    public ResponseEntity<String> deleteTicket(@PathVariable Long ticketId) {
+        if (!ticketService.existsById(ticketId)) {
+            return ticketNotFound(ticketId);
         }
-        ticketService.deleteTicket(id);
-        return ResponseEntity.noContent().build();
+        ticketService.deleteTicket(ticketId);
+        return ResponseEntity.ok().body("DELETED - Ticket ID: %d");
     }
 
     @RequestMapping(value="/approveTicket/{ticketId}", method=RequestMethod.PUT)
     public ResponseEntity<String> approveTicket(@PathVariable Long ticketId, @RequestParam Long managerId, 
     @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
         if (!ticketService.existsById(ticketId)) {
-            return ResponseEntity.badRequest().body(String.format("Ticket ID: %d not found!", ticketId));
+            return ticketNotFound(ticketId);
         }
         if (comments == null) {
             ticketService.updateTicketStatus(ticketId, managerId, "APPROVED");
@@ -139,7 +139,7 @@ public class TicketController {
     public ResponseEntity<String> rejectTicket(@PathVariable Long ticketId, @RequestParam Long managerId, 
     @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
         if (!ticketService.existsById(ticketId)) {
-            return ResponseEntity.badRequest().body(String.format("Ticket ID: %d not found!", ticketId));
+            return ticketNotFound(ticketId);
         }
         if (comments == null) {
             ticketService.updateTicketStatus(ticketId, managerId, "REJECTED");
@@ -154,7 +154,7 @@ public class TicketController {
     public ResponseEntity<String> resolveTicket(@PathVariable Long ticketId, @RequestParam Long adminId, 
     @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
         if (!ticketService.existsById(ticketId)) {
-            return ResponseEntity.badRequest().body(String.format("Ticket ID: %d not found!", ticketId));
+            return ticketNotFound(ticketId);
         }
         if (comments == null) {
             ticketService.updateTicketStatus(ticketId, adminId, "RESOLVED");
@@ -168,7 +168,7 @@ public class TicketController {
     public ResponseEntity<String> reopenTicket(@PathVariable Long ticketId, @RequestParam Long userId, 
     @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
         if (!ticketService.existsById(ticketId)) {
-            return ResponseEntity.badRequest().body(String.format("Ticket ID: %d not found!", ticketId));
+            return ticketNotFound(ticketId);
         }
         if (comments == null) {
             ticketService.updateTicketStatus(ticketId, userId, "REOPENED");
@@ -182,7 +182,7 @@ public class TicketController {
     public ResponseEntity<String> closeTicket(@PathVariable Long ticketId, @RequestParam Long userId, 
     @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
         if (!ticketService.existsById(ticketId)) {
-            return ResponseEntity.badRequest().body(String.format("Ticket ID: %d not found!", ticketId));
+            return ticketNotFound(ticketId);
         }
         if (comments == null) {
             ticketService.updateTicketStatus(ticketId, userId, "CLOSED");
@@ -190,5 +190,9 @@ public class TicketController {
             ticketService.updateTicketStatus(ticketId, userId, "CLOSED", URLDecoder.decode(comments, "UTF-8"));
         }
         return ResponseEntity.ok().body(String.format("CLOSED - Ticket ID: %d", ticketId));
+    }
+
+    private ResponseEntity<String> ticketNotFound(Long ticketId) {
+        return ResponseEntity.badRequest().body(String.format("Ticket ID: %d not found!", ticketId));
     }
 }

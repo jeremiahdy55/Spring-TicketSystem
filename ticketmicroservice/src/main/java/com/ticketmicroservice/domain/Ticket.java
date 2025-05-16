@@ -2,9 +2,7 @@ package com.ticketmicroservice.domain;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -59,12 +57,9 @@ public class Ticket {
 
     private String category;
 
-    // @ManyToMany(fetch = FetchType.EAGER)
-	// @JoinTable(name="ticket_filePaths")
-	// private List<String> fileAttachmentPaths = new ArrayList<>();
-
-    private String fileAttachmentPath;
-
+    @ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name="ticket_filePaths")
+	private List<String> fileAttachmentPaths = new ArrayList<>();
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TicketHistory> history = new ArrayList<>();
@@ -92,7 +87,6 @@ public class Ticket {
         this.status = status;
         this.creationDate = creationDate;
         this.category = category;
-        this.fileAttachmentPath = fileAttachmentPath;
     }
 
     public long getId() {
@@ -167,12 +161,12 @@ public class Ticket {
         this.category = category;
     }
 
-    public String getFileAttachmentPath() {
-        return fileAttachmentPath;
+    public List<String> getFileAttachmentPaths() {
+        return fileAttachmentPaths;
     }
 
-    public void setFileAttachmentPath(String fileAttachmentPath) {
-        this.fileAttachmentPath = fileAttachmentPath;
+    public void setFileAttachmentPath(List<String> fileAttachmentPaths) {
+        this.fileAttachmentPaths = fileAttachmentPaths;
     }
 
     public List<TicketHistory> getHistory() {

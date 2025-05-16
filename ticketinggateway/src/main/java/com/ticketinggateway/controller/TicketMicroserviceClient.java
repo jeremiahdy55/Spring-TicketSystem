@@ -124,8 +124,6 @@ public class TicketMicroserviceClient {
         }
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-
-        // Set the header to specify that only JSON data is accepted as response
         headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
 
         // requestEntity encompasses both the body (there is none here) and the headers of the request
@@ -152,11 +150,109 @@ public class TicketMicroserviceClient {
         if (comments != null) {
             URLtoSend = URLtoSend + "&comments=" + URLEncoder.encode(comments, "UTF-8");
         }
-        System.out.println(URLtoSend);
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
 
-        // Set the header to specify that only JSON data is accepted as response
+        // requestEntity encompasses both the body (there is none here) and the headers of the request
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                URLtoSend,
+                HttpMethod.PUT,
+                requestEntity,
+                String.class);
+
+        System.out.println(responseEntity.getBody());
+    }
+
+    // PUT Ticket, calls ticketmicroservice--TicketController.resolveTicket()
+    // Resolve Ticket and is only accessible (frontend) by ADMIN(S)
+    @RequestMapping(value = "/resolveTicket/{ticketId}", method = RequestMethod.PUT)
+    public void resolveTicket(Principal principal, 
+                            @PathVariable Long ticketId, 
+                            @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
+        System.out.println();
+        System.out.println(comments);
+        String URLtoSend = resolveTicketURL + ticketId + "?adminId=" + employeeService.findByName(principal.getName()).getId();
+        if (comments != null) {
+            URLtoSend = URLtoSend + "&comments=" + URLEncoder.encode(comments, "UTF-8");
+        }
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
+
+        // requestEntity encompasses both the body (there is none here) and the headers of the request
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                URLtoSend,
+                HttpMethod.PUT,
+                requestEntity,
+                String.class);
+
+        System.out.println(responseEntity.getBody());
+    }
+
+    // PUT Ticket, calls ticketmicroservice--TicketController.reopenTicket()
+    // Reopen Ticket and is only accessible (frontend) by USER(S)
+    @RequestMapping(value = "/reopenTicket/{ticketId}", method = RequestMethod.PUT)
+    public void reopenTicket(Principal principal, 
+                            @PathVariable Long ticketId, 
+                            @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
+        String URLtoSend = reopenTicketURL + ticketId + "?userId=" + employeeService.findByName(principal.getName()).getId();
+        if (comments != null) {
+            URLtoSend = URLtoSend + "&comments=" + URLEncoder.encode(comments, "UTF-8");
+        }
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
+
+        // requestEntity encompasses both the body (there is none here) and the headers of the request
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                URLtoSend,
+                HttpMethod.PUT,
+                requestEntity,
+                String.class);
+
+        System.out.println(responseEntity.getBody());
+    }
+
+    // PUT Ticket, calls ticketmicroservice--TicketController.closeTicket()
+    // Closes Ticket and is only accessible (frontend) by USER(S)
+    @RequestMapping(value = "/closeTicket/{ticketId}", method = RequestMethod.PUT)
+    public void closeTicket(Principal principal, 
+                            @PathVariable Long ticketId, 
+                            @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
+        String URLtoSend = closeTicketURL + ticketId + "?userId=" + employeeService.findByName(principal.getName()).getId();
+        if (comments != null) {
+            URLtoSend = URLtoSend + "&comments=" + URLEncoder.encode(comments, "UTF-8");
+        }
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
+
+        // requestEntity encompasses both the body (there is none here) and the headers of the request
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                URLtoSend,
+                HttpMethod.PUT,
+                requestEntity,
+                String.class);
+
+        System.out.println(responseEntity.getBody());
+    }
+
+    // DELETE Ticket, calls ticketmicroservice--TicketController.deleteTicket()
+    // Closes Ticket and is accessible (frontend) by USER(S), MANAGER(S), ADMIN(S)
+    @RequestMapping(value = "/deleteTicket/{ticketId}", method = RequestMethod.DELETE)
+    public void deleteTicket(Principal principal, @PathVariable Long ticketId){
+        String URLtoSend = deleteTicketURL + ticketId;
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
 
         // requestEntity encompasses both the body (there is none here) and the headers of the request

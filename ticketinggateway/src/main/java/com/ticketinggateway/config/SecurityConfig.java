@@ -1,4 +1,3 @@
-
 package com.ticketinggateway.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,26 +18,11 @@ public class SecurityConfig {
 	@Autowired
 	UserDetailsService userDetailsService;
 	
-
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 	
-	// @Bean
-	// public UserDetailsService userDetailsService() {
-	// 	UserDetails user =
-	// 		 User.withDefaultPasswordEncoder()
-	// 			.username("user")
-	// 			.password("password")
-	// 			.roles("USER")
-	// 			.build();
-
-	// 	return new InMemoryUserDetailsManager(user);
-	// }
-	
-
-
 	@Bean 
 	public SecurityFilterChain apiFilterChain2(HttpSecurity http) throws Exception {
 		http
@@ -46,7 +30,11 @@ public class SecurityConfig {
 			.flag(true).and()
 			.authorizeRequests().requestMatchers("/").permitAll().and()
 			      //.exceptionHandling().accessDeniedPage("/accessDeniedPage").and()
-			.authorizeRequests().requestMatchers("/homePage", "/testUI").hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
+			.authorizeRequests().requestMatchers("/homePage", "/testUI","/getHistory/*","/getTicket/*","/getAllTickets", "/deleteTicket/*").hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
+			.authorizeRequests().requestMatchers("/approveTicket/*", "/rejectTicket/*").hasAnyAuthority("MANAGER").and()
+			.authorizeRequests().requestMatchers("/reopenTicket/*", "/closeTicket/*").hasAnyAuthority("USER").and()
+			.authorizeRequests().requestMatchers("/resolveTicket/*").hasAnyAuthority("ADMIN").and()
+
 		.formLogin()
 			.loginPage("/login")
 			.defaultSuccessUrl("/homePage").permitAll().and()
@@ -58,6 +46,4 @@ public class SecurityConfig {
 		
 		return http.build();
 	}
-	
-
 }

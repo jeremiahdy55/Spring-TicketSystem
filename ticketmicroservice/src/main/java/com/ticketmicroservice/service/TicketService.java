@@ -1,7 +1,5 @@
 package com.ticketmicroservice.service;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -132,9 +130,8 @@ public class TicketService {
         data.put("status", ticket.getStatus().name());
         data.put("creationDate", ticket.getCreationDate().toString());
         data.put("category", ticket.getCategory());
-        data.put("fileAttachmentPath", ticket.getFileAttachmentPath());
+        data.put("fileAttachmentPaths", ticket.getFileAttachmentPaths());
         JsonNode jsonNode = objectMapper.valueToTree(data);
-
         return jsonNode;
     }
 

@@ -26,6 +26,10 @@ public class Role {
 	@ManyToMany(mappedBy="roles", cascade=CascadeType.ALL)
 	Set<Employee> employee = new HashSet<>();
 
+	public Role (RoleName roleName) {
+		this.roleName = roleName;
+	}
+
 	public long getRoleId() {
 		return roleId;
 	}

@@ -81,7 +81,7 @@ public class Ticket {
         TicketStatus status,
         Date creationDate,
         String category,
-        String fileAttachmentPath
+        List<String> fileAttachmentPaths
     ) {
         this.title = title;
         this.description = description;
@@ -91,6 +91,7 @@ public class Ticket {
         this.status = status;
         this.creationDate = creationDate;
         this.category = category;
+        this.fileAttachmentPaths = fileAttachmentPaths;
     }
 
     public long getId() {

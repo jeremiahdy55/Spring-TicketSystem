@@ -47,7 +47,7 @@ public class TicketController {
     EmployeeRepository employeeRepository;
 
     @RequestMapping(value="/postTicket", method=RequestMethod.POST)
-    public ResponseEntity<?> postTicket(@RequestBody TicketRequest request) {
+    public ResponseEntity<String> postTicket(@RequestBody TicketRequest request) {
         // Check for the ENUM TYPES
         try {
             TicketPriority.valueOf(request.getPriority());
@@ -80,12 +80,12 @@ public class TicketController {
             request.getTitle(), 
             request.getDescription(), 
             createdByEmployee, 
-            assigneeEmployee, 
+            assigneeEmployee, // usually null, as a newly created ticket would not have been assigned to anyone yet 
             priority, 
             status, 
             request.getCreationDate(),
             request.getCategory(), 
-            request.getFileAttachmentPath());
+            request.getFileAttachmentPaths());
         
         Ticket savedTicket = null;
         // Comments is an optional String value to be used for the TicketHistory logging of the CREATE action

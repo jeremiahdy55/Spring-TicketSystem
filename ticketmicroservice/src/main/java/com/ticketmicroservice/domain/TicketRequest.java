@@ -1,6 +1,7 @@
 package com.ticketmicroservice.domain;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -14,7 +15,7 @@ public class TicketRequest {
 	private String priority;
 	private String status;
     private String category;
-    private String fileAttachmentPath;
+    private List<String> fileAttachmentPaths;
     private String comments;
     
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -76,12 +77,12 @@ public class TicketRequest {
         this.category = category;
     }
 
-    public String getFileAttachmentPath() {
-        return fileAttachmentPath;
+    public List<String> getFileAttachmentPaths() {
+        return fileAttachmentPaths;
     }
 
-    public void setFileAttachmentPath(String fileAttachmentPath) {
-        this.fileAttachmentPath = fileAttachmentPath;
+    public void setFileAttachmentPaths(List<String> fileAttachmentPaths) {
+        this.fileAttachmentPaths = fileAttachmentPaths;
     }
 
     public Date getCreationDate() {

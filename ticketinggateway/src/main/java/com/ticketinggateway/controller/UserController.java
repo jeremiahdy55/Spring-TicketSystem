@@ -105,6 +105,13 @@ public class UserController {
 		return "testUI";
 	}
 
+	@GetMapping("/ticketForm")
+	public String testPost(Model model, Principal principal) {
+		Employee thisUser = employeeService.findByName(principal.getName());
+		model.addAttribute("userId", thisUser.getId());
+		return "ticketForm";
+	}
+
 	@GetMapping("path")
 	public String getMethodName(@RequestParam String param) {
 		return new String();

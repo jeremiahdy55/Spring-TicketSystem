@@ -29,7 +29,7 @@ public class SecurityConfig {
 			.flag(true).and()
 			.authorizeRequests().requestMatchers("/").permitAll().and()
 			      //.exceptionHandling().accessDeniedPage("/accessDeniedPage").and()
-			.authorizeRequests().requestMatchers("/homePage", "/testUI","/getHistory/*","/getTicket/*","/getAllTickets", "/deleteTicket/*").hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
+			.authorizeRequests().requestMatchers("/homePage", "/testUI","/getHistory/*","/getTicket/*","/getAllTickets", "/deleteTicket/*", "/postTicket*").hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
 			.authorizeRequests().requestMatchers("/approveTicket/*", "/rejectTicket/*", "/getOpenTickets").hasAnyAuthority("MANAGER").and()
 			.authorizeRequests().requestMatchers("/reopenTicket/*", "/closeTicket/*", "/getUserTickets/*").hasAnyAuthority("USER").and()
 			.authorizeRequests().requestMatchers("/resolveTicket/*", "/getAssignedTickets/*").hasAnyAuthority("ADMIN").and()

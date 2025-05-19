@@ -7,6 +7,7 @@
     <title>Ticket Dashboard</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <!-- table-auto-width.css (custom) -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/table-auto-width.css">
 </head>
 <!-- jQuery -->

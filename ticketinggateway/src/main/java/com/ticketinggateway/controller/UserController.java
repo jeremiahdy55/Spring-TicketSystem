@@ -1,8 +1,10 @@
 package com.ticketinggateway.controller;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.ticketinggateway.domain.RoleName;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticketinggateway.domain.Employee;
+import com.ticketinggateway.domain.Role;
 import com.ticketinggateway.service.EmployeeService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -92,16 +97,22 @@ public class UserController {
 		return "signup";
 	}
 
-	@GetMapping("/homePage")
-	public String homePage() {
-		return "homePage";
+	@GetMapping("/landing")
+	public String landing() {
+		return "landing";
 	}
 
 	//TODO delete me later
 	@GetMapping("/testUI")
-	public String testGetTickets(Model model, Principal principal) {
+	public String testGetTickets(Model model, Principal principal) throws JsonProcessingException {
 		Employee thisUser = employeeService.findByName(principal.getName());
 		model.addAttribute("userId", thisUser.getId());
+		List<String> roleList = thisUser.getRoles()
+								.stream()
+								.map(Role::getRoleName)
+								.map(RoleName::name)
+								.collect(Collectors.toList());
+		model.addAttribute("roles", new ObjectMapper().writeValueAsString(roleList));
 		return "testUI";
 	}
 
@@ -110,6 +121,19 @@ public class UserController {
 		Employee thisUser = employeeService.findByName(principal.getName());
 		model.addAttribute("userId", thisUser.getId());
 		return "ticketForm";
+	}
+
+	@GetMapping("/ticketDetails/{ticketId}")
+	public String ticketDetails(@PathVariable Long ticketId, Model model, Principal principal) throws JsonProcessingException {
+		Employee thisUser = employeeService.findByName(principal.getName());
+		model.addAttribute("modelTicketId", ticketId.longValue());
+		List<String> roleList = thisUser.getRoles()
+								.stream()
+								.map(Role::getRoleName)
+								.map(RoleName::name)
+								.collect(Collectors.toList());
+		model.addAttribute("roles", new ObjectMapper().writeValueAsString(roleList));
+		return "ticketDetails";
 	}
 
 	@GetMapping("path")

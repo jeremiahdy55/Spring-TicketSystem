@@ -57,7 +57,7 @@ public class TicketMicroserviceClient {
     private final Path fileStorageLocation;
 
     public TicketMicroserviceClient() throws IOException {
-        this.fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
+        this.fileStorageLocation = Paths.get("src/main/webapp/uploads").toAbsolutePath().normalize();
         Files.createDirectories(this.fileStorageLocation);
     }
 
@@ -315,8 +315,6 @@ public class TicketMicroserviceClient {
     public void resolveTicket(Principal principal,
             @PathVariable Long ticketId,
             @RequestParam(required = false) String comments) throws UnsupportedEncodingException {
-        System.out.println();
-        System.out.println(comments);
         String URLtoSend = resolveTicketURL + ticketId + "?adminId="
                 + employeeService.findByName(principal.getName()).getId();
         if (comments != null) {
@@ -388,13 +386,15 @@ public class TicketMicroserviceClient {
     @RequestMapping(value = "/deleteTicket/{ticketId}", method = RequestMethod.DELETE)
     public void deleteTicket(Principal principal, @PathVariable Long ticketId) {
         String URLtoSend = deleteTicketURL + ticketId;
+        System.out.println(URLtoSend);
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> responseEntity = restTemplate.exchange(
                 URLtoSend,
-                HttpMethod.PUT,
+                HttpMethod.DELETE,
                 requestEntity,
                 String.class);
 

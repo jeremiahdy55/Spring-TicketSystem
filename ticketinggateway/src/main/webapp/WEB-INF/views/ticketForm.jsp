@@ -11,9 +11,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    var username = '<sec:authentication property="name" />';
     $(document).ready(function () {
         $("#ticketForm").on("submit", function (e) {
             e.preventDefault(); // prevent normal form submission
@@ -28,7 +26,7 @@
                 contentType: false,
                 success: function () {
                     console.log("Ticket submitted successfully:");
-                    window.location.href = "/homePage"//take the user back to homePage TODO fix this
+                    window.location.href = "/landing" //TODO change to userPage
                 },
                 error: function (xhr, status, error) {
                     console.error("Error submitting ticket:", error);

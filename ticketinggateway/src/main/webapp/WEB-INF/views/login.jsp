@@ -43,7 +43,7 @@ uri="http://www.springframework.org/tags/form" prefix="frm" %>
           <span class="text-muted">Don't Have an Account? </span
           ><a href="/register">Create Here!</a>
         </div>
-        <input class="btn btn-primary mt-5" type="submit" value="Submit" />
+        <input class="btn btn-primary mt-5" type="submit" value="Login" />
         <sec:csrfInput />
       </frm:form>
     </div>

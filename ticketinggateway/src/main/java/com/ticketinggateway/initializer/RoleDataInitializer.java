@@ -1,5 +1,6 @@
 package com.ticketinggateway.initializer;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -10,11 +11,8 @@ import com.ticketinggateway.repository.RoleRepository;
 @Component
 public class RoleDataInitializer implements CommandLineRunner {
 
-    private final RoleRepository roleRepository;
-
-    public RoleDataInitializer(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
+    @Autowired
+    RoleRepository roleRepository;
 
     @Override
     public void run(String... args) {

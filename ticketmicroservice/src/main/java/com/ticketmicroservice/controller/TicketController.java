@@ -128,13 +128,13 @@ public class TicketController {
 		return ResponseEntity.ok(ticketService.getTicketsByStatus(statuses));
     }
 
-    @RequestMapping(value="/deleteTicket/{id}", method=RequestMethod.DELETE)
+    @RequestMapping(value="/deleteTicket/{ticketId}", method=RequestMethod.DELETE)
     public ResponseEntity<String> deleteTicket(@PathVariable Long ticketId) {
         if (!ticketService.existsById(ticketId)) {
             return ticketNotFound(ticketId);
         }
         ticketService.deleteTicket(ticketId);
-        return ResponseEntity.ok().body("DELETED - Ticket ID: %d");
+        return ResponseEntity.ok().body(String.format("DELETED - Ticket ID: %d", ticketId));
     }
 
     @RequestMapping(value="/approveTicket/{ticketId}", method=RequestMethod.PUT)
@@ -194,7 +194,7 @@ public class TicketController {
         return ResponseEntity.ok().body(String.format("REOPENED - Ticket ID: %d", ticketId));
     }
 
-    @RequestMapping(value="/closeticket/{ticketId}", method=RequestMethod.PUT)
+    @RequestMapping(value="/closeTicket/{ticketId}", method=RequestMethod.PUT)
     public ResponseEntity<String> closeTicket(@PathVariable Long ticketId, @RequestParam Long userId, 
     @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
         if (!ticketService.existsById(ticketId)) {

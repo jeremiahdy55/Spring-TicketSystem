@@ -40,18 +40,27 @@ public class TicketMicroserviceClient {
     @Autowired
     EmployeeService employeeService;
 
+    // POST request URL
     private static final String postTicketURL = "http://localhost:8282/postTicket";
+
+    // GET request URLs
     private static final String getAllTicketsURL = "http://localhost:8282/getAllTickets";
     private static final String getTicketURL = "http://localhost:8282/getTicket/";
     private static final String getHistoryURL = "http://localhost:8282/getHistory/";
     private static final String getOpenTicketsURL = "http://localhost:8282/getOpenTickets";
     private static final String getTicketsByAssigneeURL = "http://localhost:8282/getAssignedTickets/";
     private static final String getTicketsByCreatedByURL = "http://localhost:8282/getUserTickets/";
+    private static final String getActiveTicketsByAssigneeURL = "http://localhost:8282/getActiveAssignedTickets/";
+    private static final String getActiveTicketsByCreatedByURL = "http://localhost:8282/getActiveUserTickets/";
+
+    // PUT request URLs
     private static final String approveTicketURL = "http://localhost:8282/approveTicket/";
     private static final String rejectTicketURL = "http://localhost:8282/rejectTicket/";
     private static final String resolveTicketURL = "http://localhost:8282/resolveTicket/";
     private static final String reopenTicketURL = "http://localhost:8282/reopenTicket/";
     private static final String closeTicketURL = "http://localhost:8282/closeTicket/";
+
+    // DELETE request URL
     private static final String deleteTicketURL = "http://localhost:8282/deleteTicket/";
 
     private final Path fileStorageLocation;
@@ -216,6 +225,27 @@ public class TicketMicroserviceClient {
         return responseEntity.getBody();
     }
 
+    // GET Tickets assigned to current ADMIN Employee, calls
+    // ticketmicroservice--TicketController.getTicketsByAssigneeId()
+    @RequestMapping(value = "/getActiveAssignedTickets/{assigneeId}", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonNode getActiveTicketsByAssigneeIdFromTicketMicroservice(@PathVariable Long assigneeId) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+
+        // Set the header to specify that only JSON data is accepted as response
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(
+                getActiveTicketsByAssigneeURL + assigneeId,
+                HttpMethod.GET,
+                requestEntity,
+                JsonNode.class);
+
+        return responseEntity.getBody();
+    }
+
+
     // GET Tickets created by current USER Employee, calls
     // ticketmicroservice--TicketController.getTicketsByUserId()
     @RequestMapping(value = "/getUserTickets/{createdById}", method = RequestMethod.GET)
@@ -229,6 +259,26 @@ public class TicketMicroserviceClient {
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(
                 getTicketsByCreatedByURL + createdById,
+                HttpMethod.GET,
+                requestEntity,
+                JsonNode.class);
+
+        return responseEntity.getBody();
+    }
+
+    // GET Tickets created by current USER Employee, calls
+    // ticketmicroservice--TicketController.getTicketsByUserId()
+    @RequestMapping(value = "/getActiveUserTickets/{createdById}", method = RequestMethod.GET)
+    @ResponseBody
+    public JsonNode getActiveTicketsByCreatedByIdFromTicketMicroservice(@PathVariable Long createdById) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+
+        // Set the header to specify that only JSON data is accepted as response
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(
+                getActiveTicketsByCreatedByURL + createdById,
                 HttpMethod.GET,
                 requestEntity,
                 JsonNode.class);
@@ -260,7 +310,8 @@ public class TicketMicroserviceClient {
     // PUT Ticket, calls ticketmicroservice--TicketController.approveTicket()
     // Approves Ticket and is only accessible (frontend) by MANAGER(S)
     @RequestMapping(value = "/approveTicket/{ticketId}", method = RequestMethod.PUT)
-    public void approveTicket(Principal principal,
+    @ResponseBody
+    public String approveTicket(Principal principal,
             @PathVariable Long ticketId,
             @RequestParam(required = false) String comments) throws UnsupportedEncodingException {
         System.out.println();
@@ -280,13 +331,14 @@ public class TicketMicroserviceClient {
                 requestEntity,
                 String.class);
 
-        System.out.println(responseEntity.getBody());
+        return responseEntity.getBody();
     }
 
     // PUT Ticket, calls ticketmicroservice--TicketController.rejectTicket()
     // Rejects Ticket and is only accessible (frontend) by MANAGER(S)
     @RequestMapping(value = "/rejectTicket/{ticketId}", method = RequestMethod.PUT)
-    public void rejectTicket(Principal principal,
+    @ResponseBody
+    public String rejectTicket(Principal principal,
             @PathVariable Long ticketId,
             @RequestParam(required = false) String comments) throws UnsupportedEncodingException {
         System.out.println();
@@ -306,13 +358,14 @@ public class TicketMicroserviceClient {
                 requestEntity,
                 String.class);
 
-        System.out.println(responseEntity.getBody());
+        return responseEntity.getBody();
     }
 
     // PUT Ticket, calls ticketmicroservice--TicketController.resolveTicket()
     // Resolve Ticket and is only accessible (frontend) by ADMIN(S)
     @RequestMapping(value = "/resolveTicket/{ticketId}", method = RequestMethod.PUT)
-    public void resolveTicket(Principal principal,
+    @ResponseBody
+    public String resolveTicket(Principal principal,
             @PathVariable Long ticketId,
             @RequestParam(required = false) String comments) throws UnsupportedEncodingException {
         String URLtoSend = resolveTicketURL + ticketId + "?adminId="
@@ -330,13 +383,14 @@ public class TicketMicroserviceClient {
                 requestEntity,
                 String.class);
 
-        System.out.println(responseEntity.getBody());
+        return responseEntity.getBody();
     }
 
     // PUT Ticket, calls ticketmicroservice--TicketController.reopenTicket()
     // Reopen Ticket and is only accessible (frontend) by USER(S)
     @RequestMapping(value = "/reopenTicket/{ticketId}", method = RequestMethod.PUT)
-    public void reopenTicket(Principal principal,
+    @ResponseBody
+    public String reopenTicket(Principal principal,
             @PathVariable Long ticketId,
             @RequestParam(required = false) String comments) throws UnsupportedEncodingException {
         String URLtoSend = reopenTicketURL + ticketId + "?userId="
@@ -354,13 +408,14 @@ public class TicketMicroserviceClient {
                 requestEntity,
                 String.class);
 
-        System.out.println(responseEntity.getBody());
+        return responseEntity.getBody();
     }
 
     // PUT Ticket, calls ticketmicroservice--TicketController.closeTicket()
     // Closes Ticket and is only accessible (frontend) by USER(S)
     @RequestMapping(value = "/closeTicket/{ticketId}", method = RequestMethod.PUT)
-    public void closeTicket(Principal principal,
+    @ResponseBody
+    public String closeTicket(Principal principal,
             @PathVariable Long ticketId,
             @RequestParam(required = false) String comments) throws UnsupportedEncodingException {
         String URLtoSend = closeTicketURL + ticketId + "?userId="
@@ -378,13 +433,14 @@ public class TicketMicroserviceClient {
                 requestEntity,
                 String.class);
 
-        System.out.println(responseEntity.getBody());
+        return responseEntity.getBody();
     }
 
     // DELETE Ticket, calls ticketmicroservice--TicketController.deleteTicket()
     // Closes Ticket and is accessible (frontend) by USER(S), MANAGER(S), ADMIN(S)
     @RequestMapping(value = "/deleteTicket/{ticketId}", method = RequestMethod.DELETE)
-    public void deleteTicket(Principal principal, @PathVariable Long ticketId) {
+    @ResponseBody
+    public String deleteTicket(Principal principal, @PathVariable Long ticketId) {
         String URLtoSend = deleteTicketURL + ticketId;
         System.out.println(URLtoSend);
 
@@ -398,6 +454,6 @@ public class TicketMicroserviceClient {
                 requestEntity,
                 String.class);
 
-        System.out.println(responseEntity.getBody());
+        return responseEntity.getBody();
     }
 }

@@ -1,0 +1,13 @@
+.table-auto-width {
+    width: 100%;
+}
+
+.table-auto-width th,
+.table-auto-width td {
+    white-space: nowrap;
+}
+
+.customCardWidth{
+    /* root element font size units */
+    width: 18rem;
+}

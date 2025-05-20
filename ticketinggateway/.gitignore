@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+## ignore all file attachments on tickets
+**/src/main/webapp/uploads/
+
 ### STS ###
 .apt_generated
 .classpath

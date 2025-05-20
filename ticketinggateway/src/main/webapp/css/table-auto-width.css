@@ -1,8 +1,0 @@
-.table-auto-width {
-width: auto;
-}
-
-.table-auto-width th,
-.table-auto-width td {
-white-space: nowrap;
-}

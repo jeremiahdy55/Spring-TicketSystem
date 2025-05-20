@@ -34,7 +34,7 @@ public class TicketService {
     // CREATE w/o comments
     public Ticket createTicket(Ticket ticket) {
         Ticket savedTicket = ticketRepository.save(ticket);
-        TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.CREATED, ticket.getCreatedBy(), ticket.getCreationDate(), null);
+        TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.CREATED, ticket.getCreatedBy(), ticket.getCreationDate(), "");
         ticketHistoryService.createTicketHistory(actionLog);
         return savedTicket;
     }
@@ -54,12 +54,7 @@ public class TicketService {
 
     // READ (ALL)
     public List<JsonNode> findAllTickets() {
-        List<Ticket> tickets = ticketRepository.findAll();
-        List<JsonNode> returnList = new ArrayList<JsonNode>();
-        for (Ticket ticket : tickets) {
-            returnList.add(convertToJsonNode(ticket));
-        }
-        return returnList;
+        return convertTicketsToJsonNodes(ticketRepository.findAll());
     }
 
     // READ (ONE)
@@ -76,34 +71,31 @@ public class TicketService {
     // READ (ALL) 
     // WHERE ASSIGNEE.ID = assigneeId
     public List<JsonNode> getTicketsByAssigneeId(Long assigneeId) {
-        List<Ticket> tickets = ticketRepository.findByAssignee_Id(assigneeId);
-        List<JsonNode> returnList = new ArrayList<JsonNode>();
-        for (Ticket ticket : tickets) {
-            returnList.add(convertToJsonNode(ticket));
-        }
-        return returnList;
+        return convertTicketsToJsonNodes(ticketRepository.findByAssignee_Id(assigneeId));
+    }
+
+    // READ (ALL) 
+    // WHERE ASSIGNEE.ID = assigneeId
+    public List<JsonNode> getTicketsByCreatedById(Long assigneeId) {
+        return convertTicketsToJsonNodes(ticketRepository.findByCreatedBy_Id(assigneeId));
+    }
+
+    // READ (ALL) 
+    // WHERE ASSIGNEE.ID = assigneeId and STATUS IN (statuses)
+    public List<JsonNode> getTicketsByStatusInAndAssigneeId(List<TicketStatus> statuses, Long assigneeId) {
+        return convertTicketsToJsonNodes(ticketRepository.findByStatusInAndAssignee_Id(statuses, assigneeId));
     }
 
      // READ (ALL) 
-     // WHERE CREATEDBY.ID = createdById
-     public List<JsonNode> getTicketsByCreatedById(Long createdById) {
-        List<Ticket> tickets = ticketRepository.findByCreatedBy_Id(createdById);
-        List<JsonNode> returnList = new ArrayList<JsonNode>();
-        for (Ticket ticket : tickets) {
-            returnList.add(convertToJsonNode(ticket));
-        }
-        return returnList;
+     // WHERE CREATEDBY.ID = createdById and STATUS IN (statuses)
+     public List<JsonNode> getTicketsByStatusInAndCreatedById(List<TicketStatus> statuses, Long createdById) {
+        return convertTicketsToJsonNodes(ticketRepository.findByStatusInAndCreatedBy_Id(statuses, createdById));
     }
 
      // READ (ALL) 
      // WHERE STATUS IN (statuses)
      public List<JsonNode> getTicketsByStatus(List<TicketStatus> statuses) {
-        List<Ticket> tickets = ticketRepository.findByStatusIn(statuses);
-        List<JsonNode> returnList = new ArrayList<JsonNode>();
-        for (Ticket ticket : tickets) {
-            returnList.add(convertToJsonNode(ticket));
-        }
-        return returnList;
+        return convertTicketsToJsonNodes(ticketRepository.findByStatusIn(statuses));
     }
 
     // Check if Ticket exists
@@ -122,7 +114,7 @@ public class TicketService {
             ticket.setStatus(TicketStatus.valueOf(action));
             Ticket returnTicket = ticketRepository.save(ticket);
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
-            TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), null);
+            TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), "");
             ticketHistoryService.createTicketHistory(actionLog);
             return returnTicket;
         }
@@ -143,6 +135,15 @@ public class TicketService {
             ticketHistoryService.createTicketHistory(actionLog);
             return returnTicket;
         }
+    }
+
+    // Convert List<Ticket> to List<JsonNode>
+    public List<JsonNode> convertTicketsToJsonNodes(List<Ticket> tickets) {
+        List<JsonNode> returnList = new ArrayList<JsonNode>();
+        for (Ticket ticket : tickets) {
+            returnList.add(convertToJsonNode(ticket));
+        }
+        return returnList;
     }
 
     // Convert to JsonNode object

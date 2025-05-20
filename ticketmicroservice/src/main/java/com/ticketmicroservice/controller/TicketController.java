@@ -4,10 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.ticketmicroservice.domain.Employee;
 import com.ticketmicroservice.domain.Ticket;
-// import com.ticketmicroservice.domain.TicketHistory;
 import com.ticketmicroservice.domain.TicketPriority;
 import com.ticketmicroservice.domain.TicketRequest;
 import com.ticketmicroservice.domain.TicketStatus;
@@ -120,6 +117,18 @@ public class TicketController {
     @RequestMapping(value="/getUserTickets/{createdById}", method=RequestMethod.GET)
     public ResponseEntity<List<JsonNode>> getTicketsByUserId(@PathVariable Long createdById) {
 		return ResponseEntity.ok(ticketService.getTicketsByCreatedById(createdById));
+    }
+
+    @RequestMapping(value="/getActiveAssignedTickets/{assigneeId}", method=RequestMethod.GET)
+    public ResponseEntity<List<JsonNode>> getTicketsByStatusInAndAssigneeId(@PathVariable Long assigneeId) {
+        List<TicketStatus> statuses = List.of(TicketStatus.APPROVED, TicketStatus.REOPENED);
+		return ResponseEntity.ok(ticketService.getTicketsByStatusInAndAssigneeId(statuses, assigneeId));
+    }
+
+    @RequestMapping(value="/getActiveUserTickets/{createdById}", method=RequestMethod.GET)
+    public ResponseEntity<List<JsonNode>> getTicketsStatusInAndByUserId(@PathVariable Long createdById) {
+        List<TicketStatus> statuses = List.of(TicketStatus.APPROVED, TicketStatus.ASSIGNED, TicketStatus.OPEN, TicketStatus.PENDING_APPROVAL, TicketStatus.REJECTED, TicketStatus.REOPENED, TicketStatus.RESOLVED);
+		return ResponseEntity.ok(ticketService.getTicketsByStatusInAndCreatedById(statuses, createdById));
     }
 
     @RequestMapping(value="/getOpenTickets", method=RequestMethod.GET)

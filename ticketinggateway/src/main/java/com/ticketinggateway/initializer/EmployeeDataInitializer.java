@@ -3,7 +3,6 @@ package com.ticketinggateway.initializer;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.ticketinggateway.domain.Employee;
@@ -11,7 +10,7 @@ import com.ticketinggateway.repository.EmployeeRepository;
 import com.ticketinggateway.service.EmployeeService;
 
 @Component
-public class EmployeeDataInitializer implements CommandLineRunner {
+public class EmployeeDataInitializer {
 
     @Autowired
     EmployeeRepository employeeRepository;
@@ -19,8 +18,7 @@ public class EmployeeDataInitializer implements CommandLineRunner {
     @Autowired
     EmployeeService employeeService;
 
-    @Override
-    public void run(String... args) {
+    public void init() {
         if (employeeRepository.count() == 0) {
             Employee user = new Employee();
             user.setName("master");
@@ -32,4 +30,5 @@ public class EmployeeDataInitializer implements CommandLineRunner {
             employeeService.save(user, List.of("ADMIN", "MANAGER", "USER"));
         }
     }
+
 }

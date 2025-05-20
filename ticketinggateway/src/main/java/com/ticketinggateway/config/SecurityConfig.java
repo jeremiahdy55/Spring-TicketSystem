@@ -16,6 +16,13 @@ public class SecurityConfig {
 
 	@Autowired
 	UserDetailsService userDetailsService;
+
+	private final String[] loggedInEndpoints = { "/landing", "/getHistory/*","/getTicket/*", "/ticketDetails/*", "/postTicket*", "/ticketForm"};
+	private final String[] managerEndpoints = {"/approveTicket/*", "/rejectTicket/*", "/getOpenTickets", "/getAllTickets", "/managerDashboard"};
+	private final String[] userEndpoints = {"/reopenTicket/*", "/closeTicket/*", "/getUserTickets/*", "/getActiveUserTickets/*", "/userDashboard"};
+	private final String[] adminEndpoints = {"/resolveTicket/*", "/getAssignedTickets/*", "/getActiveAssignedTickets/*", "/adminDashboard"};
+	private final String deleteEndpoint = "/deleteTicket/*";
+
 	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -29,10 +36,11 @@ public class SecurityConfig {
 			.flag(true).and()
 			.authorizeRequests().requestMatchers("/").permitAll().and()
 			      //.exceptionHandling().accessDeniedPage("/accessDeniedPage").and()
-			.authorizeRequests().requestMatchers("/landing", "/testUI","/getHistory/*","/getTicket/*","/getAllTickets", "/deleteTicket/*", "/postTicket*", "/ticketDetails/*").hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
-			.authorizeRequests().requestMatchers("/approveTicket/*", "/rejectTicket/*", "/getOpenTickets").hasAnyAuthority("MANAGER").and()
-			.authorizeRequests().requestMatchers("/reopenTicket/*", "/closeTicket/*", "/getUserTickets/*").hasAnyAuthority("USER").and()
-			.authorizeRequests().requestMatchers("/resolveTicket/*", "/getAssignedTickets/*").hasAnyAuthority("ADMIN").and()
+			.authorizeRequests().requestMatchers(loggedInEndpoints).hasAnyAuthority("ADMIN", "USER", "MANAGER").and()
+			.authorizeRequests().requestMatchers(managerEndpoints).hasAnyAuthority("MANAGER").and()
+			.authorizeRequests().requestMatchers(userEndpoints).hasAnyAuthority("USER").and()
+			.authorizeRequests().requestMatchers(deleteEndpoint).hasAnyAuthority("USER", "MANAGER").and()
+			.authorizeRequests().requestMatchers(adminEndpoints).hasAnyAuthority("ADMIN").and()
 
 		.formLogin()
 			.loginPage("/login")

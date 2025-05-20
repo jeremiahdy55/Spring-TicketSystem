@@ -12,21 +12,26 @@
     <div class="collapse navbar-collapse d-flex" id="navbarContent">
         <!-- nav links based on ROLE -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- Ticket form accessible to all -->
+            <li class="nav-item">
+                <a class="nav-link active" href="/ticketForm">Create Ticket</a>
+            </li>
+
           <sec:authorize access='hasAnyAuthority("ADMIN")'>
             <li class="nav-item">
-              <a class="nav-link active" href="/adminPanel">Admin Dashboard</a>
-            </li>
-          </sec:authorize>
-  
-          <sec:authorize access='hasAnyAuthority("USER")'>
-            <li class="nav-item">
-              <a class="nav-link active" href="/userTickets">User Dashboard</a>
+              <a class="nav-link active" href="/adminDashboard">Admin Dashboard</a>
             </li>
           </sec:authorize>
   
           <sec:authorize access='hasAnyAuthority("MANAGER")'>
             <li class="nav-item">
-              <a class="nav-link active" href="/userTickets">Manager Dashboard</a>
+              <a class="nav-link active" href="/managerDashboard">Manager Dashboard</a>
+            </li>
+          </sec:authorize>
+
+          <sec:authorize access='hasAnyAuthority("USER")'>
+            <li class="nav-item">
+              <a class="nav-link active" href="/userDashboard">User Dashboard</a>
             </li>
           </sec:authorize>
         </ul>

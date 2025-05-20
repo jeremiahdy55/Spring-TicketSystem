@@ -31,7 +31,6 @@ function loadTicketTableHtml(ticketData, authority) {
 
     // Dynamically load the div with the response data consisting of ticket(s)
     sortedTicketData.forEach(function (ticket) { 
-        console.log("in for-loop")
 
         // Prevent "Assigned By: 0" in webpage display to prevent confusion
         assigneeId = (ticket.assignee != 0) ? ticket.assignee : "NOT ASSIGNED"
@@ -43,7 +42,6 @@ function loadTicketTableHtml(ticketData, authority) {
 
         // Check if the actionsHdr is needed
         useActions = useActions || managerAction || adminAction || userAction
-        console.log(useActions)
 
         // Get the necessary Employee action buttons depending on conditionals above
         acceptBtn = (managerAction) ?  getAcceptBtn(ticket.id) : ""
@@ -180,7 +178,6 @@ function changeTicketStatus(ticketId, comments, baseURL) {
     // construct the RequestParam "comments" if needed
     let modifedComments = (comments && (comments.trim() !== "")) ? ("?comments=" + encodeURIComponent(comments)) : ""
     let requestURL = baseURL + ticketId + modifedComments
-    console.log(requestURL)
     $.ajax({
         url : requestURL,
         method: 'PUT',

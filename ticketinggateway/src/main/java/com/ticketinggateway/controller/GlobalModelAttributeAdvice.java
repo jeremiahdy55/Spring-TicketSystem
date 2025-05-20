@@ -15,6 +15,7 @@ import com.ticketinggateway.domain.Role;
 import com.ticketinggateway.domain.RoleName;
 import com.ticketinggateway.service.EmployeeService;
 
+// This class will add global context for ModelAttribute, accessible by all .jsp files
 @ControllerAdvice
 public class GlobalModelAttributeAdvice {
 

@@ -2,7 +2,6 @@ package com.ticketinggateway.controller;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -16,11 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import com.ticketinggateway.domain.RoleName;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticketinggateway.domain.Employee;
-import com.ticketinggateway.domain.Role;
 import com.ticketinggateway.service.EmployeeService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +27,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @SessionAttributes("user")
 public class UserController {
 	
-	@Autowired EmployeeService employeeService;
+	@Autowired 
+	EmployeeService employeeService;
 
 	@GetMapping(value = {"/login", "/"})
 	public String login(@RequestParam(required = false) String logout, @RequestParam(required = false) String error,
@@ -75,7 +72,6 @@ public class UserController {
 				return "signup";
 			}
 		}
-
 		// Create the Employee
 		Employee user = new Employee();
 		user.setName(userName);
@@ -98,89 +94,30 @@ public class UserController {
 		return "landing";
 	}
 
-	@GetMapping("/test")
-	public String test() {
-		return "test";
-	}
-
-	//TODO delete me later
-	@GetMapping("/testUI")
-	public String testGetTickets(Model model, Principal principal) throws JsonProcessingException {
-		Employee thisUser = employeeService.findByName(principal.getName());
-		model.addAttribute("userId", thisUser.getId());
-		List<String> roleList = thisUser.getRoles()
-								.stream()
-								.map(Role::getRoleName)
-								.map(RoleName::name)
-								.collect(Collectors.toList());
-		model.addAttribute("roles", new ObjectMapper().writeValueAsString(roleList));
-		return "testUI";
-	}
-
 	@GetMapping("/adminDashboard")
 	public String adminDashboard(Model model, Principal principal) throws JsonProcessingException {
-		Employee thisUser = employeeService.findByName(principal.getName());
-		List<String> roleList = thisUser.getRoles()
-								.stream()
-								.map(Role::getRoleName)
-								.map(RoleName::name)
-								.collect(Collectors.toList());
-		model.addAttribute("roles", new ObjectMapper().writeValueAsString(roleList));
-		model.addAttribute("userId", thisUser.getId());
 		return "adminDashboard";
 	}
 
 	@GetMapping("/managerDashboard")
 	public String managerDashboard(Model model, Principal principal) throws JsonProcessingException {
-		Employee thisUser = employeeService.findByName(principal.getName());
-		List<String> roleList = thisUser.getRoles()
-								.stream()
-								.map(Role::getRoleName)
-								.map(RoleName::name)
-								.collect(Collectors.toList());
-		model.addAttribute("roles", new ObjectMapper().writeValueAsString(roleList));
-		model.addAttribute("userId", thisUser.getId());
 		return "managerDashboard";
 	}
 
 	@GetMapping("/userDashboard")
 	public String userDashboard(Model model, Principal principal) throws JsonProcessingException {
-		Employee thisUser = employeeService.findByName(principal.getName());
-		List<String> roleList = thisUser.getRoles()
-								.stream()
-								.map(Role::getRoleName)
-								.map(RoleName::name)
-								.collect(Collectors.toList());
-		model.addAttribute("roles", new ObjectMapper().writeValueAsString(roleList));
-		model.addAttribute("userId", thisUser.getId());
 		return "userDashboard";
 	}
 	
 
 	@GetMapping("/ticketForm")
 	public String testPost(Model model, Principal principal) {
-		Employee thisUser = employeeService.findByName(principal.getName());
-		model.addAttribute("userId", thisUser.getId());
 		return "ticketForm";
 	}
 
 	@GetMapping("/ticketDetails/{ticketId}")
 	public String ticketDetails(@PathVariable Long ticketId, Model model, Principal principal) throws JsonProcessingException {
-		Employee thisUser = employeeService.findByName(principal.getName());
-		model.addAttribute("modelTicketId", ticketId.longValue());
-		List<String> roleList = thisUser.getRoles()
-								.stream()
-								.map(Role::getRoleName)
-								.map(RoleName::name)
-								.collect(Collectors.toList());
-		model.addAttribute("roles", new ObjectMapper().writeValueAsString(roleList));
 		return "ticketDetails";
 	}
-
-	// @GetMapping("path")
-	// public String getMethodName(@RequestParam String param) {
-	// 	return new String();
-	// }
-	
 
 }

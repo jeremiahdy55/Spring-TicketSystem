@@ -38,9 +38,9 @@
 <body>
 <%@ include file="navbar.jsp" %>
 <div class="container mt-5">
-    <sec:authorize access="isAuthenticated()">
+    <!-- <sec:authorize access="isAuthenticated()">
         <h3>User ID: ${userId}</h3>
-    </sec:authorize>
+    </sec:authorize> -->
     <h1>Create ticket</h1>
     <form id="ticketForm">
         <div class="mb-3">

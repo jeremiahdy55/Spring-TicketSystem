@@ -39,7 +39,8 @@
         <!-- Flush right -->
         <sec:authorize access="isAuthenticated()">
             <form action="/logout" method="post" class="form-inline ml-auto">
-                <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+              <span class="text-light me-3">User ID: ${userId}</span>
+              <button type="submit" class="btn btn-danger btn-sm">Logout</button>
             </form>
         </sec:authorize>
       </div>

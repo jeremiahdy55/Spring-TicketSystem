@@ -41,27 +41,27 @@ public class TicketMicroserviceClient {
     EmployeeService employeeService;
 
     // POST request URL
-    private static final String postTicketURL = "http://localhost:8282/postTicket";
+    private static final String postTicketURL = "http://localhost:8282/api/postTicket";
 
     // GET request URLs
-    private static final String getAllTicketsURL = "http://localhost:8282/getAllTickets";
-    private static final String getTicketURL = "http://localhost:8282/getTicket/";
-    private static final String getHistoryURL = "http://localhost:8282/getHistory/";
-    private static final String getOpenTicketsURL = "http://localhost:8282/getOpenTickets";
-    private static final String getTicketsByAssigneeURL = "http://localhost:8282/getAssignedTickets/";
-    private static final String getTicketsByCreatedByURL = "http://localhost:8282/getUserTickets/";
-    private static final String getActiveTicketsByAssigneeURL = "http://localhost:8282/getActiveAssignedTickets/";
-    private static final String getActiveTicketsByCreatedByURL = "http://localhost:8282/getActiveUserTickets/";
+    private static final String getAllTicketsURL = "http://localhost:8282/api/getAllTickets";
+    private static final String getTicketURL = "http://localhost:8282/api/getTicket/";
+    private static final String getHistoryURL = "http://localhost:8282/api/getHistory/";
+    private static final String getOpenTicketsURL = "http://localhost:8282/api/getOpenTickets";
+    private static final String getTicketsByAssigneeURL = "http://localhost:8282/api/getAssignedTickets/";
+    private static final String getTicketsByCreatedByURL = "http://localhost:8282/api/getUserTickets/";
+    private static final String getActiveTicketsByAssigneeURL = "http://localhost:8282/api/getActiveAssignedTickets/";
+    private static final String getActiveTicketsByCreatedByURL = "http://localhost:8282/api/getActiveUserTickets/";
 
     // PUT request URLs
-    private static final String approveTicketURL = "http://localhost:8282/approveTicket/";
-    private static final String rejectTicketURL = "http://localhost:8282/rejectTicket/";
-    private static final String resolveTicketURL = "http://localhost:8282/resolveTicket/";
-    private static final String reopenTicketURL = "http://localhost:8282/reopenTicket/";
-    private static final String closeTicketURL = "http://localhost:8282/closeTicket/";
+    private static final String approveTicketURL = "http://localhost:8282/api/approveTicket/";
+    private static final String rejectTicketURL = "http://localhost:8282/api/rejectTicket/";
+    private static final String resolveTicketURL = "http://localhost:8282/api/resolveTicket/";
+    private static final String reopenTicketURL = "http://localhost:8282/api/reopenTicket/";
+    private static final String closeTicketURL = "http://localhost:8282/api/closeTicket/";
 
     // DELETE request URL
-    private static final String deleteTicketURL = "http://localhost:8282/deleteTicket/";
+    private static final String deleteTicketURL = "http://localhost:8282/api/deleteTicket/";
 
     private final Path fileStorageLocation;
 

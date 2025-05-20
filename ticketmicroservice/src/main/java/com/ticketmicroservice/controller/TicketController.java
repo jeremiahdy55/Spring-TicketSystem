@@ -25,6 +25,7 @@ import com.ticketmicroservice.service.TicketHistoryService;
 import com.ticketmicroservice.service.TicketService;
 
 @RestController
+@RequestMapping(value="/api")
 public class TicketController {
 
     // Service for domain.Ticket - CRUD operations available through Service

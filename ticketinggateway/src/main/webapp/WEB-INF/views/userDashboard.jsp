@@ -19,34 +19,24 @@
     let roles = JSON.parse('${roles}');
     let userId = JSON.parse('${userId}');
     $(document).ready(function() {
-        $.ajax({
-            url: $('#selectTicketsToLoad').val() + userId, 
-            method: 'GET',
-            contentType: 'application/json',
-            success: function (data) {
-                let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
-                $('#ticketsDiv').html(htmlContent);
-            },
-            error: function (xhr, status, error) {
-                console.log(error);
-            }
-        });
+        function loadTicketsDiv (baseURL) {
+            $.ajax({
+                url: baseURL + userId, 
+                method: 'GET',
+                contentType: 'application/json',
+                success: function (data) {
+                    let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
+                    $('#ticketsDiv').html(htmlContent);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        };
+        loadTicketsDiv($('#selectTicketsToLoad').val());
         $('#selectTicketsToLoad').on('change', function() {
             const baseURL = $(this).val();
-            $.ajax({
-            url: baseURL + userId, 
-            method: 'GET',
-            contentType: 'application/json',
-            success: function (data) {
-                console.log(data)
-
-                let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
-                $('#ticketsDiv').html(htmlContent);
-            },
-            error: function (xhr, status, error) {
-                console.log(error);
-            }
-        });
+            loadTicketsDiv(baseURL);
         });
     });
 </script>

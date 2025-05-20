@@ -16,7 +16,6 @@ uri="http://www.springframework.org/tags/form" prefix="frm" %>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS and CSS -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/myStyles.css">
-    <script src="/js/load-ticket-elements.js"></script>
 </head>
 <body>
     <%@ include file="navbar.jsp" %>

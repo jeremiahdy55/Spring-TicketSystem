@@ -20,21 +20,19 @@
     let userId = JSON.parse('${userId}');
     $(document).ready(function() {
         function loadTicketsDiv (baseURL) {
-        $.ajax({
-            url: baseURL + userId, 
-            method: 'GET',
-            contentType: 'application/json',
-            success: function (data) {
-                
-                let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
-                console.log(htmlContent)
-                $('#ticketsDiv').html(htmlContent);
-            },
-            error: function (xhr, status, error) {
-                console.log(error);
-            }
-        });
-    }
+            $.ajax({
+                url: baseURL + userId, 
+                method: 'GET',
+                contentType: 'application/json',
+                success: function (data) {
+                    let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
+                    $('#ticketsDiv').html(htmlContent);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        };
         loadTicketsDiv($('#selectTicketsToLoad').val());
         $('#selectTicketsToLoad').on('change', function() {
             const baseURL = $(this).val();

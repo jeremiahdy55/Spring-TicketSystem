@@ -27,6 +27,11 @@
                 success: function (data) {
                     let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
                     $('#ticketsDiv').html(htmlContent);
+                    if (htmlContent === '<h4>No Tickets Found</h4>') { // If theres action to be taken
+                        $('#commentsSection').prop('hidden', true);
+                    } else {
+                        $('#commentsSection').prop('hidden', false);
+                    };
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -51,5 +56,9 @@
         </select>
     </div>
     <div class="row" id="ticketsDiv"></div>
+    <div class="mb-3" id="commentsSection" hidden>
+        <strong>Comments</strong>
+        <textarea class="form-control" id="comments" rows="3" placeholder="Your message..."></textarea>
+    </div>
   </div>
 </body>

@@ -37,7 +37,6 @@
             contentType: 'application/json',
             success: function (data) {
                 let htmlContent = loadTicketHistoryTableHtml(data);
-                console.log(htmlContent)
                 $('#historyTable').html(htmlContent);
             },
             error: function (xhr, status, error) {

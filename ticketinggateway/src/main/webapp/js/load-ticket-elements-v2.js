@@ -170,7 +170,6 @@ function loadTicketCardHtml(ticket, authority) {
         `<p class="card-text"><strong>Category:</strong> ${ticket.category}</p>` +
         fileAttachmentsHTML + commentsSection + actionsFooter +'</div></div>'
     return htmlContent
-
 }
 
 // Call the matching TicketMicroserviceClient.java method to change ticket status, with comments optional
@@ -194,13 +193,10 @@ function changeTicketStatus(ticketId, comments, baseURL) {
     })
 }
 
-// Delete the ticket, with comments optional
-function deleteTicket(ticketId, comments) {
+// Delete the ticket
+function deleteTicket(ticketId) {
     let baseURL = '/deleteTicket/'
-    if (comments.trim() !== "") {
-        comments = "?comments=" + encodeURIComponent(comments) // construct the RequestParam "comments"
-    }
-    let requestURL = baseURL + ticketId + comments
+    let requestURL = baseURL + ticketId
     $.ajax({
         url : requestURL,
         method: 'DELETE',
@@ -214,7 +210,8 @@ function deleteTicket(ticketId, comments) {
                 window.history.back() 
             } else {
                 location.reload() // reload the page (all other cases show multiple tickets)
-            }        },
+            }        
+        },
         error: function (xhr, status, error) {
             console.log(error)
         }
@@ -261,5 +258,5 @@ function getReopenBtn(ticketId) {
 }
 
 function getDeleteBtn(ticketId) {
-    return `<button class="btn btn-small btn-danger" onClick="deleteTicket(${ticketId},$('#comments').val())">Delete</button>`
+    return `<button class="btn btn-small btn-danger" onClick="deleteTicket(${ticketId})">Delete</button>`
 }

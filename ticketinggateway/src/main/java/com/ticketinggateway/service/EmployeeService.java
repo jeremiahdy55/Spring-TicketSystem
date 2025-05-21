@@ -1,5 +1,6 @@
 package com.ticketinggateway.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +73,17 @@ public class EmployeeService {
 
 	public Employee findByName(String employeeName) {
 		return employeeRepository.findByName(employeeName);
+	}
+
+	public List<Long> findByRoleName(RoleName roleName) {
+		List<Employee> empList = employeeRepository.findByRoleName(roleName);
+		List<Long> idList = new ArrayList<>();
+		for (Employee emp : empList) {
+			System.out.println(emp.getId());
+			idList.add(emp.getId());
+		}
+
+		return idList;
 	}
 
 }

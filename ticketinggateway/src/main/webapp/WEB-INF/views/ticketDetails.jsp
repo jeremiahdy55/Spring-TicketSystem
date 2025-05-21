@@ -20,17 +20,28 @@
     let roles = JSON.parse('${roles}')
     $(document).ready(function() {
         $.ajax({
-                url: '/getTicket/'+ ticketId, 
+                url: '/getAdminEmployees', 
                 method: 'GET',
-                contentType: 'application/json',
-                success: function (data) {
-                    let htmlContent = loadTicketCardHtml(data, roles);
-                    $('#ticketCard').html(htmlContent);
+                dataType: 'json',
+                success: function (adminIdList) {
+                    $.ajax({
+                        url: '/getTicket/'+ ticketId, 
+                        method: 'GET',
+                        contentType: 'application/json',
+                        success: function (data) {
+                            let htmlContent = loadTicketCardHtml(data, roles, adminIdList);
+                            $('#ticketCard').html(htmlContent);
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                     });
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
                 }
             });
+        
         $.ajax({
             url: '/getHistory/'+ ticketId, 
             method: 'GET',

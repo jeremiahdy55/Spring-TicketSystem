@@ -27,7 +27,7 @@
                 success: function (data) {
                     let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
                     $('#ticketsDiv').html(htmlContent);
-                    if (htmlContent === '<h4>No Tickets Found</h4>') { // If theres action to be taken
+                    if ($("#actionsBody").length == 0) { // If theres action to be taken (use truthy check)
                         $('#commentsSection').prop('hidden', true);
                     } else {
                         $('#commentsSection').prop('hidden', false);

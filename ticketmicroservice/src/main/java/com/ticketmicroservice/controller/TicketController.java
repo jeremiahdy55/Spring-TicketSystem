@@ -149,7 +149,9 @@ public class TicketController {
 
     @RequestMapping(value="/approveTicket/{ticketId}", method=RequestMethod.PUT)
     public ResponseEntity<String> approveTicket(@PathVariable Long ticketId, @RequestParam Long managerId, 
+    @RequestParam(required=false) Long assigneeId,
     @RequestParam(required=false) String comments) throws UnsupportedEncodingException {
+        String assignComments = String.format("Ticket ID: %d - ASSIGNED by: %d", ticketId, managerId);
         if (!ticketService.existsById(ticketId)) {
             return ticketNotFound(ticketId);
         }
@@ -158,6 +160,8 @@ public class TicketController {
         } else {
             ticketService.updateTicketStatus(ticketId, managerId, "APPROVED", URLDecoder.decode(comments, "UTF-8"));
         }
+        // Approve the ticket if the manager selected an ADMIN Employee to assign the ticket to (will always have comments)
+        if (assigneeId != null) ticketService.assignTicket(ticketId, managerId, assigneeId, assignComments);
         return ResponseEntity.ok().body(String.format("APPROVED - Ticket ID: %d", ticketId));
     }
 

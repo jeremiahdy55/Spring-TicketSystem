@@ -19,19 +19,30 @@
     let roles = JSON.parse('${roles}');
     let userId = JSON.parse('${userId}');
     $(document).ready(function() {
-        function loadTicketsDivManager (baseURL) {
+        function loadTicketsDivManager(baseURL) {
             $.ajax({
-                url: baseURL, 
+                url: '/getAdminEmployees',
                 method: 'GET',
-                contentType: 'application/json',
-                success: function (data) {
-                    let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
-                    $('#ticketsDiv').html(htmlContent);
-                    if (htmlContent === '<h4>No Tickets Found</h4>') { // If theres action to be taken
-                        $('#commentsSection').prop('hidden', true);
-                    } else {
-                        $('#commentsSection').prop('hidden', false);
-                    };
+                dataType: 'json',
+                success: function (adminIdList) {
+                    console.log(adminIdList)
+                    $.ajax({
+                        url: baseURL,
+                        method: 'GET',
+                        contentType: 'application/json',
+                        success: function (data) {
+                            let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles, adminIdList) : '<h4>No Tickets Found</h4>';
+                            $('#ticketsDiv').html(htmlContent);
+                            if (htmlContent === '<h4>No Tickets Found</h4>') { // If there's action to be taken, allow comments
+                                $('#commentsSection').prop('hidden', true);
+                            } else {
+                                $('#commentsSection').prop('hidden', false);
+                            };
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

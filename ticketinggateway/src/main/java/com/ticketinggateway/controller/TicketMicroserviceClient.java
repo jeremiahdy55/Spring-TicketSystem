@@ -313,11 +313,13 @@ public class TicketMicroserviceClient {
     @ResponseBody
     public String approveTicket(Principal principal,
             @PathVariable Long ticketId,
+            @RequestParam(required = false) Long assigneeId,
             @RequestParam(required = false) String comments) throws UnsupportedEncodingException {
-        System.out.println();
-        System.out.println(comments);
         String URLtoSend = approveTicketURL + ticketId + "?managerId="
                 + employeeService.findByName(principal.getName()).getId();
+        if (assigneeId != null) {
+            URLtoSend = URLtoSend + "&assigneeId=" + assigneeId;
+        }
         if (comments != null) {
             URLtoSend = URLtoSend + "&comments=" + URLEncoder.encode(comments, "UTF-8");
         }

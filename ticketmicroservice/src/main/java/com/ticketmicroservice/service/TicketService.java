@@ -137,6 +137,42 @@ public class TicketService {
         }
     }
 
+     // Assign Ticket to ADMIN
+     public Ticket assignTicket(Long ticketId, Long managerId, Long assigneeId) {
+        if (!ticketRepository.existsById(ticketId)) {
+            // If the Ticket does not exist
+            System.out.println("updateTicketStatus (with comments): ticket does not exist!");
+            return null;
+        } else {
+            Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+            Employee assignEmployee = employeeRepository.findById(assigneeId).orElse(null);
+            Employee actionBy = employeeRepository.findById(managerId).orElse(null);
+            ticket.setAssignee(assignEmployee);
+            Ticket returnTicket = ticketRepository.save(ticket);
+            TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.ASSIGNED, actionBy, new Date(), "");
+            ticketHistoryService.createTicketHistory(actionLog);
+            return returnTicket;
+        }
+    }
+
+    // Assign Ticket to ADMIN with comments
+    public Ticket assignTicket(Long ticketId, Long managerId, Long assigneeId, String comments) {
+        if (!ticketRepository.existsById(ticketId)) {
+            // If the Ticket does not exist
+            System.out.println("updateTicketStatus (with comments): ticket does not exist!");
+            return null;
+        } else {
+            Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+            Employee assignEmployee = employeeRepository.findById(assigneeId).orElse(null);
+            Employee actionBy = employeeRepository.findById(managerId).orElse(null);
+            ticket.setAssignee(assignEmployee);
+            Ticket returnTicket = ticketRepository.save(ticket);
+            TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.ASSIGNED, actionBy, new Date(), comments);
+            ticketHistoryService.createTicketHistory(actionLog);
+            return returnTicket;
+        }
+    }
+
     // Convert List<Ticket> to List<JsonNode>
     public List<JsonNode> convertTicketsToJsonNodes(List<Ticket> tickets) {
         List<JsonNode> returnList = new ArrayList<JsonNode>();

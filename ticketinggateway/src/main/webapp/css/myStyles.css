@@ -7,6 +7,10 @@
     white-space: nowrap;
 }
 
+.vertical-align-table-cells {
+    vertical-align: middle;
+}
+
 .customCardWidth{
     /* root element font size units */
     width: 18rem;

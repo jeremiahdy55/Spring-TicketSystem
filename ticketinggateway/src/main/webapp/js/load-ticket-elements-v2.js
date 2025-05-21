@@ -1,8 +1,8 @@
 // returns a dynamically-created HTML table with Bootstrap styling for each ticket
 // this is a preview of the data ticket.description and ticket.fileAttachmentPaths are omitted
-function loadTicketTableHtml(ticketData, authority) {
+function loadTicketTableHtml(ticketData, authority, adminIdList) {
     // Initialize these as empty to not break the HTML
-    let acceptBtn = ""
+    let approveBtn = ""
     let rejectBtn = ""
     let resolveBtn = ""
     let deleteBtn = ""
@@ -21,8 +21,10 @@ function loadTicketTableHtml(ticketData, authority) {
     // Initialize the table header for the delete columns
     let deleteHdr = (["USER", "MANAGER"].some(role => authority.includes(role))) ? '<th>Delete</th>' : "" 
 
+    let adminSelectElement = ""
+    let approveContainer = ""
+    let htmlContent = ""
 
-    let htmlContent = ""    
     // Sort the ticket data to show the earliest to latest in a top-down manner
     const sortedIdxs =  ticketData.map((ticket, index) => ({index, date: new Date(ticket.creationDate)}))
                         .sort((obj1, obj2) => obj2.date - obj1.date)
@@ -44,32 +46,38 @@ function loadTicketTableHtml(ticketData, authority) {
         useActions = useActions || managerAction || adminAction || userAction
 
         // Get the necessary Employee action buttons depending on conditionals above
-        acceptBtn = (managerAction) ?  getAcceptBtn(ticket.id) : ""
+        approveBtn = (managerAction) ?  getApproveBtn(ticket.id) : ""
         rejectBtn = (managerAction) ?  getRejectBtn(ticket.id) : ""
         resolveBtn = (adminAction) ? getResolveBtn(ticket.id) : ""
         closeBtn = (userAction) ?  getCloseBtn(ticket.id) : ""
         reopenBtn = (userAction) ?  getReopenBtn(ticket.id) : ""
         deleteBtn = (["USER", "MANAGER"].some(role => authority.includes(role))) ? tableDataWrapper(getDeleteBtn(ticket.id)) : ""
 
+        // Build the approveTicket button with a adminSelect element to assign the ticket to a specified ADMIN employee
+        adminSelectElement = (managerAction && adminIdList.length !== 0) ? getAdminSelectElement(adminIdList) : ""
+        console.log(adminSelectElement)
+        approveContainer = (approveBtn && adminSelectElement) ? adminSelectElement + approveBtn : ""
+
         // Build the HTML element that will hold the Employee action buttons and the details Button
-        actionsBody = '<div class="d-flex justify-content-center gap-2 flex-wrap">'
-        detailsBtn = `<button class="btn btn-small btn-secondary" onClick="window.location.href='/ticketDetails/${ticket.id}'">Ticket Details: ${ticket.id}</button>`
+        actionsBody = '<div class="d-flex justify-content-center gap-2 flex-wrap" id="actionsBody">'
+        detailsBtn = `<button class="btn btn-small btn-secondary" onClick="window.location.href='/ticketDetails/${ticket.id}'">Details: ${ticket.id}</button>`
 
         // Wrap all the Employee action buttons inside a single table column (Actions)
-        actionsBody += resolveBtn + acceptBtn + rejectBtn + closeBtn + reopenBtn + '</div>'
+        actionsBody += resolveBtn + approveContainer + rejectBtn + closeBtn + reopenBtn + '</div>'
         actionsBody = (useActions) ? tableDataWrapper(actionsBody) : ''
 
         // Build the actual table row content
-        htmlContent += '<tr><td>' + ticket.id + '</td>' +
-            '<td>' + ticket.title + '</td>' +
-            '<td>' + ticket.createdBy + '</td>' +
-            '<td>' + assigneeId + '</td>' +
-            '<td>' + ticket.priority + '</td>' +
-            '<td>' + ticket.status + '</td>' +
-            '<td>' + ticket.creationDate + '</td>' +
-            '<td>' + ticket.category + '</td>' +
-            '<td>' + detailsBtn + '</td>' +
-            actionsBody + 
+        htmlContent += '<tr>' + 
+            tableDataWrapper(ticket.id) +
+            tableDataWrapper(ticket.title) +
+            tableDataWrapper(ticket.createdBy) +
+            tableDataWrapper(assigneeId) +
+            tableDataWrapper(ticket.priority) +
+            tableDataWrapper(ticket.status) +
+            tableDataWrapper(ticket.creationDate) +
+            tableDataWrapper(ticket.category) +
+            tableDataWrapper(detailsBtn) +
+            actionsBody +
             deleteBtn + '</tr>'
     })
 
@@ -89,7 +97,7 @@ function loadTicketTableHtml(ticketData, authority) {
                         '<th>Status</th>' +
                         '<th>Creation Date</th>' +
                         '<th>Category</th>' +
-                        '<th>Details & History</th>' +
+                        '<th>Details</th>' +
                         actionsHdr + deleteHdr +
                         '</tr></thead><tbody>'
     
@@ -127,7 +135,7 @@ function loadTicketHistoryTableHtml(ticketHistoryData) {
 }
 
 // Create a card that has all ticket info and actions
-function loadTicketCardHtml(ticket, authority) {
+function loadTicketCardHtml(ticket, authority, adminIdList) {
     // Declare default values will be overwritten if any of these appropriate values from response are not null
     let fileAttachmentsHTML = ""
 
@@ -137,22 +145,26 @@ function loadTicketCardHtml(ticket, authority) {
     let userAction = (authority.includes("USER") && ["RESOLVED"].includes(ticket.status))
 
     // Get the necessary HTML components
-    let acceptBtn = (managerAction) ?  getAcceptBtn(ticket.id) : ""
     let rejectBtn = (managerAction) ?  getRejectBtn(ticket.id) : ""
     let resolveBtn = (adminAction) ?  getResolveBtn(ticket.id) : ""
     let closeBtn = (userAction) ?  getCloseBtn(ticket.id) : ""
     let reopenBtn = (userAction) ?  getReopenBtn(ticket.id) : ""
     let deleteBtn = (["USER", "MANAGER"].some(role => authority.includes(role))) ?  getDeleteBtn(ticket.id) : ""
 
+    // Build the approveTicket button with a adminSelect element to assign the ticket to a specified ADMIN employee
+    let approveContainer = ""
+    let approveBtn = (managerAction) ?  getApproveBtn(ticket.id) : ""
+    let adminSelectElement = (managerAction && adminIdList.length !== 0) ? getAdminSelectElement(adminIdList) : ""
+    approveContainer = (approveBtn && adminSelectElement) ? adminSelectElement + approveBtn : ""
+
     // Initialize the card-footer where the buttons for possible actions will go
     let actionsFooter = '<div class="card-footer bg-white"><div class="d-flex justify-content-center gap-2 flex-wrap">' +
-                        acceptBtn + rejectBtn + resolveBtn + closeBtn + reopenBtn + deleteBtn + '</div></div>'
-
+                        approveContainer + rejectBtn + resolveBtn + closeBtn + reopenBtn + deleteBtn + '</div></div>'
 
     // Prevent "Assigned By: 0" to avoid confusion
     let assigneeId = (ticket.assignee != 0) ? ticket.assignee : "NOT ASSIGNED"
 
-    //
+    // Construct comments section HTML element
     let commentsSection = '<div class="mb-3"><strong>Comments</strong><textarea class="form-control" id="comments" rows="4" placeholder="Your message..."></textarea></div>'
 
     // Construct the file attachment links (if any)
@@ -177,6 +189,40 @@ function changeTicketStatus(ticketId, comments, baseURL) {
     // construct the RequestParam "comments" if needed
     let modifedComments = (comments && (comments.trim() !== "")) ? ("?comments=" + encodeURIComponent(comments)) : ""
     let requestURL = baseURL + ticketId + modifedComments
+    $.ajax({
+        url : requestURL,
+        method: 'PUT',
+        accepts: {
+            json: "application/json",
+            text: "text/plain"
+        },
+        success: function () {
+            location.reload() // reload the page
+        },
+        error: function (xhr, status, error) {
+            console.log(error)
+        }
+    })
+}
+
+// Call the matching TicketMicroserviceClient.java method to change ticket status, with comments optional
+function approveTicket(ticketId, assigneeId, comments) {
+    let baseURL = '/approveTicket/'
+    // construct the RequestParam "comments" if needed
+    let modifiedAssigneeId = (assigneeId) ? ("assigneeId=" + assigneeId) : ""
+    let modifiedComments = (comments && (comments.trim() !== "")) ? ("comments=" + encodeURIComponent(comments)) : ""
+    let requestParams = ""
+    if (modifiedAssigneeId || modifiedComments) {
+        requestParams += "?";
+        if (modifiedAssigneeId) {
+            requestParams += modifiedAssigneeId;
+        }
+        if (modifiedComments) {
+            if (modifiedAssigneeId) requestParams += "&";
+            requestParams += modifiedComments;
+        }
+    }
+    let requestURL = baseURL + ticketId + requestParams
     $.ajax({
         url : requestURL,
         method: 'PUT',
@@ -233,12 +279,22 @@ function createFileAttachmentsList(fileAttachmentPaths) {
 
 // Simple wrapper function to make a <td> element
 function tableDataWrapper(htmlContent) {
-    return '<td>' + htmlContent + '</td>'
+    return '<td class="vertical-align-table-cells">' + htmlContent + '</td>'
 }
 
 ////// Declare the html content for Employee action buttons here //////
-function getAcceptBtn(ticketId) {
-    return `<button class="btn btn-small btn-info" onClick="changeTicketStatus(${ticketId},$('#comments').val(),'/approveTicket/')">Approve</button>`
+function getAdminSelectElement(adminIdList) {
+    let selectElement = `<select class="form-select" id="adminSelect" name="adminSelect">`
+    for (const adminId of adminIdList) { // this is a list of numeric values of each Employee's IDs with Role = ADMIN
+        selectElement += `<option value="${adminId}">${adminId}</option>`
+    }
+    selectElement += '<option value="" selected disabled hidden>Choose Assignee</option></select>'
+    console.log(selectElement)
+    return selectElement
+}
+
+function getApproveBtn(ticketId) {
+    return `<button class="btn btn-small btn-info" onClick="approveTicket(${ticketId},$('#adminSelect').val(),$('#comments').val())">Approve</button>`
 }
 
 function getRejectBtn(ticketId) {

@@ -24,12 +24,14 @@ public class GlobalModelAttributeAdvice {
 
     @ModelAttribute("userId")
     public long addUserId(Principal principal) {
+        if (principal == null) return 0L;
         Employee thisUser = employeeService.findByName(principal.getName());
         return thisUser.getId();
     }
 
     @ModelAttribute("roles")
     public String addRoles(Principal principal) throws JsonProcessingException {
+        if (principal == null) return null;
         Employee thisUser = employeeService.findByName(principal.getName());
         List<String> roleList = thisUser.getRoles()
                 .stream()

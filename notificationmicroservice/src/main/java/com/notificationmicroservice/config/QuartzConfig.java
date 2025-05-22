@@ -1,8 +1,10 @@
-package com.notificationmicroservice.jobs;
+package com.notificationmicroservice.config;
 
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.notificationmicroservice.jobs.CheckTicketsJob;
 
 @Configuration
 public class QuartzConfig {

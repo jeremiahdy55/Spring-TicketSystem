@@ -14,6 +14,9 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+// This entity models an Employee
+// NOTE: Spring automatically configures a Join table for Employee and Role
+//       due to the @JoinTable annotation
 @Entity
 @Table(
 	uniqueConstraints = @UniqueConstraint(columnNames = {"name", "email"})
@@ -110,6 +113,5 @@ public class Employee {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-	
 	
 }

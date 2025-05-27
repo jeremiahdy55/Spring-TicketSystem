@@ -15,6 +15,8 @@ import com.ticketinggateway.domain.Employee;
 import com.ticketinggateway.repository.RoleRepository;
 import com.ticketinggateway.repository.EmployeeRepository;
 
+
+// This service provides the business logic to save, find, and check data on Employees
 @Service
 public class EmployeeService {
 

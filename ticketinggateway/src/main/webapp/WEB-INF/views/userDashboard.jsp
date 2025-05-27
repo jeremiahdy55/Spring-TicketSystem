@@ -20,12 +20,14 @@
     let userId = JSON.parse('${userId}');
     $(document).ready(function() {
         function loadTicketsDiv (baseURL) {
-            $.ajax({
+            $.ajax({ // Get all the necessary ticket data
                 url: baseURL + userId, 
                 method: 'GET',
                 contentType: 'application/json',
-                success: function (data) {
+                success: function (data) { // If successful, load the ticket data in table format
                     let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles, null) : '<h4>No Tickets Found</h4>';
+                    
+                    // Show the ticket table HTML content
                     $('#ticketsDiv').html(htmlContent);
                     if ($("#actionsBody").length == 0) { // If theres action to be taken (use truthy check)
                         $('#commentsSection').prop('hidden', true);
@@ -38,6 +40,8 @@
                 }
             });
         };
+
+        // Call the reusable function with whatever HTTP request the select has at page load and on change
         loadTicketsDiv($('#selectTicketsToLoad').val());
         $('#selectTicketsToLoad').on('change', function() {
             const baseURL = $(this).val();

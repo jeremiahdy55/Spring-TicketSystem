@@ -34,6 +34,8 @@ import com.ticketinggateway.domain.Employee;
 import com.ticketinggateway.domain.TicketRequest;
 import com.ticketinggateway.service.EmployeeService;
 
+// This Controller provides Ticket information to any webpages in webapp
+// by sending an HTTP request to the equivalent methods in ticketmicroservice
 @Controller
 public class TicketMicroserviceClient {
 

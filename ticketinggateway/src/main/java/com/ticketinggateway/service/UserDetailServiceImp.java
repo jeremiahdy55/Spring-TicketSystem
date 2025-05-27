@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.ticketinggateway.domain.Role;
 import com.ticketinggateway.domain.Employee;
 
+// This service provides the logic needed for Spring Security to function
 @Service
 public class UserDetailServiceImp implements UserDetailsService {
 

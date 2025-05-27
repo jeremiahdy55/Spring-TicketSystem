@@ -19,19 +19,22 @@
     let roles = JSON.parse('${roles}');
     let userId = JSON.parse('${userId}');
     $(document).ready(function() {
+        // Create a reusable function
         function loadTicketsDivManager(baseURL) {
-            $.ajax({
+            $.ajax({ // In the wrapping AJAX call, get a list of all ADMINs
                 url: '/getAdminEmployees',
                 method: 'GET',
                 dataType: 'json',
                 success: function (adminIdList) {
                     console.log(adminIdList)
-                    $.ajax({
+                    $.ajax({ // If successful in getting ADMINs, get the corresponding ticket data
                         url: baseURL,
                         method: 'GET',
                         contentType: 'application/json',
-                        success: function (data) {
+                        success: function (data) { // If successful in getting ticket data, load the table
                             let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles, adminIdList) : '<h4>No Tickets Found</h4>';
+                            
+                            // Show the resulting table HTML content
                             $('#ticketsDiv').html(htmlContent);
                             if (htmlContent === '<h4>No Tickets Found</h4>') { // If there's action to be taken, allow comments
                                 $('#commentsSection').prop('hidden', true);
@@ -49,6 +52,8 @@
                 }
             });
         };
+
+        // Call the reusable function with whatever HTTP request the select has at page load and on change
         loadTicketsDivManager($('#selectTicketsToLoad').val());
         $('#selectTicketsToLoad').on('change', function() {
             const baseURL = $(this).val();

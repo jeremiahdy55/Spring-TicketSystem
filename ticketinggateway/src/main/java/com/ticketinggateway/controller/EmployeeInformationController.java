@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ticketinggateway.domain.RoleName;
 import com.ticketinggateway.service.EmployeeService;
 
+
+// This Controller provides Employee information to any webpages in webapp
 @Controller
 public class EmployeeInformationController {
 

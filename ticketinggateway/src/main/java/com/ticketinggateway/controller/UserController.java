@@ -22,7 +22,7 @@ import com.ticketinggateway.service.EmployeeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
+// This Controller functions as the router to serve the webapp .jsp pages
 @Controller
 @SessionAttributes("user")
 public class UserController {

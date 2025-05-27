@@ -19,16 +19,17 @@
     let ticketId = JSON.parse('${ticketId}');
     let roles = JSON.parse('${roles}')
     $(document).ready(function() {
-        $.ajax({
+        $.ajax({ // Get a list of all ADMIN employees
                 url: '/getAdminEmployees', 
                 method: 'GET',
                 dataType: 'json',
-                success: function (adminIdList) {
-                    $.ajax({
+                success: function (adminIdList) { // If successful in getting all ADMINs
+                    $.ajax({ // Get the ticket we want details for
                         url: '/getTicket/'+ ticketId, 
                         method: 'GET',
                         contentType: 'application/json',
                         success: function (data) {
+                            // If successful in getting ticket data, load the ticket Card on the left-hand side
                             let htmlContent = loadTicketCardHtml(data, roles, adminIdList);
                             $('#ticketCard').html(htmlContent);
                         },
@@ -42,11 +43,12 @@
                 }
             });
         
-        $.ajax({
+        $.ajax({ // Request the ticket history of the ticket we're viewing
             url: '/getHistory/'+ ticketId, 
             method: 'GET',
             contentType: 'application/json',
             success: function (data) {
+                // If sucessful, load the ticket history action logs as a table sorted by latests on top
                 let htmlContent = loadTicketHistoryTableHtml(data);
                 $('#historyTable').html(htmlContent);
             },

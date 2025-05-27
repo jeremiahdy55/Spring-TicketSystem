@@ -12,6 +12,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 
+// This entity models the Role (authorizations) given to Employees
+// NOTE: this entity is never accesible by USERs, ADMINs, or MANAGERs and is initialized at start
 @Entity
 public class Role {
 	

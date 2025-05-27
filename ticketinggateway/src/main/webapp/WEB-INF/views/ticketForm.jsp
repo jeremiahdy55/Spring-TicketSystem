@@ -17,7 +17,8 @@
             e.preventDefault(); // prevent normal form submission
 
             var formData = new FormData(this);
-            console.log(formData)
+            // Send the formData to create a new ticket
+            // Reload the page on a successful POST
             $.ajax({
                 url: "/postTicket",
                 type: "POST",
@@ -26,7 +27,7 @@
                 contentType: false,
                 success: function () {
                     console.log("Ticket submitted successfully:");
-                    window.location.href = "/landing" //TODO change to userPage
+                    window.location.href = "/landing"
                 },
                 error: function (xhr, status, error) {
                     console.error("Error submitting ticket:", error);

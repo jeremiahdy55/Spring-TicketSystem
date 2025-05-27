@@ -5,7 +5,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-
+// This class is duplicated in ticketmicroservice
+// and models a POST request body to create a ticket.
 public class TicketRequest {
 	
 	private String title;

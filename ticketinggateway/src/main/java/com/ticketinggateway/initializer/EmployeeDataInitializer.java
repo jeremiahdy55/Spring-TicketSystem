@@ -10,6 +10,8 @@ import com.ticketinggateway.domain.Employee;
 import com.ticketinggateway.repository.EmployeeRepository;
 import com.ticketinggateway.service.EmployeeService;
 
+// This component will create the "master" account
+// Which has full access to all functionality
 @Component
 public class EmployeeDataInitializer {
 

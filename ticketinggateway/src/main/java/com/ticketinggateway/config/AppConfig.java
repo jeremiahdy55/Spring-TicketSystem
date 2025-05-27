@@ -58,7 +58,7 @@ public class AppConfig {
 	
 	@Bean
 	@Primary
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory(){
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
 		entityManagerFactory.setDataSource(dataSource());
 		entityManagerFactory.setPackagesToScan("com.ticketinggateway.domain");
@@ -68,7 +68,7 @@ public class AppConfig {
 		return entityManagerFactory;
 	}
 	
-	public Properties jpaProperties(){
+	public Properties jpaProperties() {
 		Properties jpaProperties = new Properties();
 		jpaProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
 		jpaProperties.setProperty("hibernate.show_sql", "true");

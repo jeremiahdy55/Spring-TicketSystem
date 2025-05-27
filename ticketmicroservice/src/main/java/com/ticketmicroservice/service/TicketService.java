@@ -1,9 +1,11 @@
 package com.ticketmicroservice.service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,10 +17,12 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticketmicroservice.domain.Employee;
+import com.ticketmicroservice.domain.RoleName;
 import com.ticketmicroservice.domain.Ticket;
 import com.ticketmicroservice.domain.TicketHistory;
 import com.ticketmicroservice.domain.TicketHistoryAction;
 import com.ticketmicroservice.domain.TicketStatus;
+import com.ticketmicroservice.email.ManagerReminderEmail;
 import com.ticketmicroservice.email.ResolutionEmail;
 import com.ticketmicroservice.email.SimpleEmail;
 import com.ticketmicroservice.jms.MessageSender;
@@ -115,25 +119,6 @@ public class TicketService {
         return convertTicketsToJsonNodes(ticketRepository.findByStatusIn(statuses));
     }
 
-    public List<JsonNode> getPendingTicketsForNotification() {
-        List<Ticket> openTickets = ticketRepository.findByStatusIn(List.of(TicketStatus.OPEN, TicketStatus.PENDING_APPROVAL));
-        LocalDate today = LocalDate.now();
-        long daysBetween = 0L;
-        LocalDate createDate = null;
-        List<Ticket> stillOpenTickets = new ArrayList<>();
-
-        for (Ticket ticket: openTickets) {
-            daysBetween = 0L; createDate = null; // reset the values for fresh comparisons
-            createDate = ticket.getCreationDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            daysBetween = ChronoUnit.DAYS.between(today, createDate);
-            if (Math.abs(daysBetween) >= 7) stillOpenTickets.add(ticket);
-        }
-
-        
-
-        return null;
-    }
-
     /*********************************** UPDATE METHODS ***********************************/
     // UPDATE Ticket
     public Ticket updateTicketStatus(Long ticketId, Long employeeId, String action) {
@@ -224,17 +209,16 @@ public class TicketService {
     // Create the base notification email for ticket creation, assignment, and updates and send
     // to notificationmicroservice to be emailed to the the receipient (can be USER or ADMIN)
     public void sendTicketLifecycleEmail(Ticket ticket, Employee recipient, String comments) {
-        // Send the Ticket Update Email (SimpleMailMessage)
-        String receipientEmailAddress = recipient.getEmail();
+        String recipientEmailAddress = recipient.getEmail();
         String ticketStatus = ticket.getStatus().name().equals("OPEN") ? "CREATED" : ticket.getStatus().name();
         String emailSubject = ticketStatus + " ticket ID: " + ticket.getId();
-        String emailBody = "Successfully " + ticketStatus + " ticket ID: " + ticket.getId() + "\n" 
+        String emailBody = ticketStatus + " ticket ID: " + ticket.getId() + "\n" 
             + "Title: " + ticket.getTitle() + "\n"
             + "Description: " + ticket.getDescription() + "\n"
             + "Priority: " + ticket.getPriority() + "\n"
             + "Category: " + ticket.getCategory() + "\n"
             + "comments: " + comments;
-        SimpleEmail email = new SimpleEmail(List.of(receipientEmailAddress), emailBody, emailSubject);
+        SimpleEmail email = new SimpleEmail(List.of(recipientEmailAddress), emailBody, emailSubject);
         try {
             messageSender.sendSimpleEmailToNotificationMicroservice(email);
         } catch (Exception e) {
@@ -245,8 +229,7 @@ public class TicketService {
     // Create the notification email for ticket resolution and send it via JMS 
     // to notificationmicroservice to be emailed to the USER
     public void sendTicketResolutionEmail(Ticket ticket, Employee recipient, String comments) {
-        // Send the Ticket Resolution Email (MimeMessage)
-        String receipientEmailAddress = recipient.getEmail();
+        String recipientEmailAddress = recipient.getEmail();
         String emailSubject = ticket.getStatus().name() + " ticket ID: " + ticket.getId();
         String emailBody = "<h2>Resolving ticket ID: " + ticket.getId() + "</h2>" 
             + "<p>Resolved by: " + ticket.getAssignee().getId() + "<br>"
@@ -255,11 +238,110 @@ public class TicketService {
             + "Priority: " + ticket.getPriority() + "<br>"
             + "Category: " + ticket.getCategory() + "<br>"
             + "comments: " + comments + "</p>";
-        ResolutionEmail email = new ResolutionEmail(List.of(receipientEmailAddress), emailBody, emailSubject, getHistory(ticket.getId()));
+        ResolutionEmail email = new ResolutionEmail(List.of(recipientEmailAddress), emailBody, emailSubject, getHistory(ticket.getId()));
         try {
             messageSender.sendResolutionEmailToNotificationMicroservice(email);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    // Create the reminder email for ticket approval and send it via JMS 
+    // to notificationmicroservice to be emailed to the MANAGER
+    public void sendManagerReminderEmail(List<Ticket> tickets, List<Employee> recipients) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+        // Get the list of managers to remind
+        List<String> recipientEmailAddresses = new ArrayList<>();
+        for (Employee recipient : recipients) {
+            recipientEmailAddresses.add(recipient.getEmail());
+        }
+
+        String emailSubject = "Pending tickets: " + LocalDate.now();
+
+        String emailBody = "<h2>Pending tickets: " + LocalDate.now()+"</h2>";
+        if (tickets != null && !tickets.isEmpty()) {
+            String tableHeadStartTag = "<th style=\" background-color:#f8f9fa; border:1px solid rgb(0, 0, 0);\">";
+            String tableDataStartTag = "<td style=\"padding:8px; border:1px solid rgb(0, 0, 0);\">";
+            emailBody +=  "<table style=\"width:100%;\"><thead><tr>" +
+                tableHeadStartTag + "ID:</th>" + 
+                tableHeadStartTag + "Title:</th>" +
+                tableHeadStartTag + "Created By:</th>" +
+                tableHeadStartTag + "Priority</th>" +
+                tableHeadStartTag + "Creation Date</th>" +
+                tableHeadStartTag + "Category</th>" +
+                "</tr></thead><tbody>";
+            for (Ticket ticket : tickets) {
+                emailBody += "<tr>" + tableDataStartTag + ticket.getId() + "</td>" + 
+                tableDataStartTag + ticket.getTitle() + "</td>" + 
+                tableDataStartTag + ticket.getCreatedBy().getId() + "</td>" + 
+                tableDataStartTag + ticket.getPriority() + "</td>" + 
+                tableDataStartTag + sdf.format(ticket.getCreationDate()) + "</td>" + 
+                tableDataStartTag + ticket.getCategory() + "</td></tr>";
+            }
+            emailBody += "</tbody></table>";
+        } else {
+            emailBody += "<h4>No pending tickets today!</h4>";
+        }
+        ManagerReminderEmail email = new ManagerReminderEmail(recipientEmailAddresses, emailBody, emailSubject);
+        try {
+            messageSender.sendManagerReminderEmailToNotificationMicroservice(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*********************************** JMS-TRIGGERED METHODS ***********************************/
+    // Check if any tickets have been OPEN/PENDING_APPROVAL for 7+ days
+    // If any, send a reminder email to all MANAGERs and change any OPEN to PENDING_APPROVAL
+    public void checkForOldPendingTickets() {
+        List<Ticket> openTickets = ticketRepository.findByStatusIn(List.of(TicketStatus.OPEN, TicketStatus.PENDING_APPROVAL));
+        LocalDate today = LocalDate.now();
+        long daysBetween = 0L;
+        LocalDate createDate = null;
+        List<Ticket> oldOpenTickets = new ArrayList<>();
+
+        for (Ticket ticket : openTickets) {
+            daysBetween = 0L; createDate = null; // reset the values for fresh comparisons
+            createDate = ticket.getCreationDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            daysBetween = ChronoUnit.DAYS.between(createDate, today);
+            if (Math.abs(daysBetween) >= 7) oldOpenTickets.add(ticket);
+            if (!ticket.getStatus().equals(TicketStatus.PENDING_APPROVAL)){
+                ticket.setStatus(TicketStatus.PENDING_APPROVAL);
+                ticketRepository.save(ticket);
+                sendTicketLifecycleEmail(ticket, ticket.getCreatedBy(), "Changed ticket status to PENDING_APPROVAL on daily check-up");
+            }
+        }
+        sendManagerReminderEmail(oldOpenTickets, employeeRepository.findByRoleName(RoleName.MANAGER));
+    }
+
+    // Check if any tickets have been RESOLVE for 5+ days
+    // If any, automatically CLOSE the ticket and send an email to the USER
+    public void autoCloseTickets() {
+        String autoCloseComments = "Automatically closed ticket on " + LocalDate.now() + " after 5 or more days of inactivity post ticket resolution";
+        List<Ticket> resolvedTickets = ticketRepository.findByStatusIn(List.of(TicketStatus.RESOLVED));
+        LocalDate today = LocalDate.now();
+        long daysBetween = 0L;
+
+        for (Ticket ticket : resolvedTickets) {
+            daysBetween = 0L; // reset the values for fresh comparisons
+            List<Date> resolvedDates = new ArrayList<>();
+            for (TicketHistory event : ticket.getHistory()) {
+                System.out.println(event.getActionDate());
+                if (event.getAction().equals(TicketHistoryAction.RESOLVED)) {
+                    resolvedDates.add(event.getActionDate());
+                }
+            }
+            if (!resolvedDates.isEmpty()) {
+                LocalDate latestResolvedDate = Collections.max(resolvedDates).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                daysBetween = ChronoUnit.DAYS.between(latestResolvedDate, today);
+                if (Math.abs(daysBetween) >= 5) {
+                    ticket.setStatus(TicketStatus.CLOSED);
+                    ticketRepository.save(ticket);
+                    sendTicketLifecycleEmail(ticket, ticket.getCreatedBy(), autoCloseComments);
+                } 
+            }
+            
         }
     }
 

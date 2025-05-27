@@ -11,6 +11,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -65,8 +66,8 @@ public class Ticket {
     @Column(name = "fileAttachmentPath")                // specify column name
 	private List<String> fileAttachmentPaths = new ArrayList<>();
 
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<TicketHistory> history = new ArrayList<>();
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<TicketHistory> history = new ArrayList<>();
 
     //Default constructor
     public Ticket() {}

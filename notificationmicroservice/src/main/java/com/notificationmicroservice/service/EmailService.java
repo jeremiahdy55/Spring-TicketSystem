@@ -54,8 +54,8 @@ public class EmailService {
         // Knowing the subject line's formula is "<STATUS> ticket ID: <ticketID>"", get the ticketID value
         String ticketId = subject.substring(subject.lastIndexOf(' ') + 1);
 
-        // Add a PDF attachment
-        byte[] pdfData = generateTablePdf(tableData);
+        // Add the PDF attachment
+        byte[] pdfData = generateTicketHistoryTablePdf(tableData);
         InputStreamSource attachment = new ByteArrayResource(pdfData);
         String fileName = "ticket_" + ticketId +"_history.pdf";
         helper.addAttachment(fileName, attachment);
@@ -63,7 +63,18 @@ public class EmailService {
         mailSender.send(mimeMessage);
     }
 
-    public byte[] generateTablePdf(List<JsonNode> data) {
+    public void sendManagerReminderEmail(String recipient, String subject, String body) throws Exception {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+        helper.setTo(recipient);
+        helper.setSubject(subject);
+        helper.setText(body, true); // true for HTML
+
+        mailSender.send(mimeMessage);
+    }
+
+    public byte[] generateTicketHistoryTablePdf(List<JsonNode> data) {
         Document document = new Document();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -74,10 +85,7 @@ public class EmailService {
             document.add(Chunk.NEWLINE);
 
             if (!data.isEmpty()) {
-                // JsonNode firstRow = data.get(0);
                 List<String> columns = List.of("actionDate", "actionBy", "action", "comments");
-                // data.get(0).fieldNames().forEachRemaining(columns::add);
-
                 PdfPTable table = new PdfPTable(columns.size());
                 float[] columnWidths = {4f, 2f, 3f, 6f};
                 table.setWidths(columnWidths);
@@ -85,28 +93,15 @@ public class EmailService {
 
                 // Build header
                 for (String col : columns) {
-                    PdfPCell headerCell = new PdfPCell(new Phrase(col));
-                    headerCell.setBackgroundColor(BaseColor.LIGHT_GRAY);
-                    headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    headerCell.setPadding(5f);
-                    table.addCell(headerCell);
+                    table.addCell(buildHeaderCell(col));
                 }
 
                 // Build rows
                 for (JsonNode row : data) {
                     for (String col : columns) {
                         String cellValue = row.has(col) ? row.get(col).asText() : "";
-                        PdfPCell cell = new PdfPCell(new Phrase(cellValue));
-                        cell.setPadding(5f);
-                        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-
-                        // Allow wrapping on the comments column
-                        if (col.equals("comments")) {
-                            cell.setNoWrap(false);
-                        }
-
-                        table.addCell(cellValue);
+                        boolean allowWrap = col.equals("comments");
+                        table.addCell(buildDataCell(cellValue, allowWrap));
                     }
                 }
                 document.add(table);
@@ -120,4 +115,23 @@ public class EmailService {
 
         return outputStream.toByteArray();
     }
+
+    public PdfPCell buildDataCell (String cellValue, boolean allowWrap) {
+        PdfPCell cell = new PdfPCell(new Phrase(cellValue));
+        cell.setPadding(5f);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        // Allow wrapping on the comments column
+        if (allowWrap) { cell.setNoWrap(false);}
+        return cell;
+    }
+
+    public PdfPCell buildHeaderCell (String cellValue) {
+        PdfPCell headerCell = new PdfPCell(new Phrase(cellValue));
+        headerCell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+        headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        headerCell.setPadding(5f);
+        return headerCell;
+    }
+
 }

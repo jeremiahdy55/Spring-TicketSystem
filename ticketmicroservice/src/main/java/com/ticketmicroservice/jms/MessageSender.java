@@ -4,6 +4,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ticketmicroservice.email.ManagerReminderEmail;
 import com.ticketmicroservice.email.ResolutionEmail;
 import com.ticketmicroservice.email.SimpleEmail;
 
@@ -23,6 +24,11 @@ public class MessageSender {
     }
 
     public void sendResolutionEmailToNotificationMicroservice(ResolutionEmail message) throws Exception {
+        String messageAsJSON = objectMapper.writeValueAsString(message);
+        jmsTemplate.convertAndSend("queue.notificationMS", messageAsJSON);
+    }
+
+    public void sendManagerReminderEmailToNotificationMicroservice(ManagerReminderEmail message) throws Exception {
         String messageAsJSON = objectMapper.writeValueAsString(message);
         jmsTemplate.convertAndSend("queue.notificationMS", messageAsJSON);
     }

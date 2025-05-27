@@ -8,9 +8,9 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notificationmicroservice.email.BaseEmail;
+import com.notificationmicroservice.email.ManagerReminderEmail;
 import com.notificationmicroservice.email.ResolutionEmail;
 import com.notificationmicroservice.email.SimpleEmail;
 import com.notificationmicroservice.service.EmailService;
@@ -37,20 +37,25 @@ public class MessageReceiver {
 
             // Send an email specific to the BaseEmail.child class
             if (baseEmail instanceof SimpleEmail) {
-                SimpleEmail simple = (SimpleEmail) baseEmail;
-                for (String recipient : simple.getRecipients()) {
-                    emailService.sendSimpleEmail(recipient, simple.getSubject(), simple.getBody());
+                SimpleEmail email = (SimpleEmail) baseEmail;
+                for (String recipient : email.getRecipients()) {
+                    emailService.sendSimpleEmail(recipient, email.getSubject(), email.getBody());
                 }
             } else if (baseEmail instanceof ResolutionEmail) {
-                ResolutionEmail res = (ResolutionEmail) baseEmail;
-                for (String recipient : res.getRecipients()) {
-                    emailService.sendResolutionEmail(recipient, res.getSubject(), res.getBody(),
-                            res.getTicketHistoryData());
+                ResolutionEmail email = (ResolutionEmail) baseEmail;
+                for (String recipient : email.getRecipients()) {
+                    emailService.sendResolutionEmail(recipient, email.getSubject(), email.getBody(),
+                            email.getTicketHistoryData());
                 }
+            } else if (baseEmail instanceof ManagerReminderEmail) {
+                ManagerReminderEmail email = (ManagerReminderEmail) baseEmail;
+                for (String recipient : email.getRecipients()) {
+                    emailService.sendManagerReminderEmail(recipient, email.getSubject(), email.getBody());
+                }
+            } else {
+                System.out.println("Message is not of type:TextMessage, unsure how to handle");
+                System.out.println(message);
             }
-        } else {
-            System.out.println("Message is not of type:TextMessage, unsure how to handle");
-            System.out.println(message);
         }
     }
 }

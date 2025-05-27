@@ -9,6 +9,7 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SimpleEmail.class, name = "simple"),
+        @JsonSubTypes.Type(value = ManagerReminderEmail.class, name = "managerReminder"),
         @JsonSubTypes.Type(value = ResolutionEmail.class, name = "resolution")
 })
 public abstract class BaseEmail {

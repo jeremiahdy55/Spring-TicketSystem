@@ -44,6 +44,19 @@ public class TicketController {
     @Autowired
     EmployeeRepository employeeRepository;
 
+
+    /*********************************** DELETE METHODS **************************************************/
+    @RequestMapping(value="/deleteTicket/{ticketId}", method=RequestMethod.DELETE)
+    public ResponseEntity<String> deleteTicket(@PathVariable Long ticketId) {
+        if (!ticketService.existsById(ticketId)) {
+            return ticketNotFound(ticketId);
+        }
+        ticketService.deleteTicket(ticketId);
+        return ResponseEntity.ok().body(String.format("DELETED - Ticket ID: %d", ticketId));
+    }
+
+    
+    /*********************************** POST METHODS **************************************************/
     @RequestMapping(value="/postTicket", method=RequestMethod.POST)
     public ResponseEntity<String> postTicket(@RequestBody TicketRequest request) {
         System.out.println("Request received");
@@ -97,6 +110,8 @@ public class TicketController {
         return ResponseEntity.ok().body("Successfully saved ticket with id: "+ savedTicket.getId());
     }
 
+
+    /*********************************** GET METHODS **************************************************/
     @RequestMapping(value="/getAllTickets", method=RequestMethod.GET)
     public ResponseEntity<List<JsonNode>> getAllTickets() {
 		return ResponseEntity.ok(ticketService.findAllTickets());
@@ -124,7 +139,7 @@ public class TicketController {
 
     @RequestMapping(value="/getActiveAssignedTickets/{assigneeId}", method=RequestMethod.GET)
     public ResponseEntity<List<JsonNode>> getTicketsByStatusInAndAssigneeId(@PathVariable Long assigneeId) {
-        List<TicketStatus> statuses = List.of(TicketStatus.APPROVED, TicketStatus.REOPENED);
+        List<TicketStatus> statuses = List.of(TicketStatus.APPROVED, TicketStatus.REOPENED, TicketStatus.ASSIGNED);
 		return ResponseEntity.ok(ticketService.getTicketsByStatusInAndAssigneeId(statuses, assigneeId));
     }
 
@@ -140,15 +155,8 @@ public class TicketController {
 		return ResponseEntity.ok(ticketService.getTicketsByStatus(statuses));
     }
 
-    @RequestMapping(value="/deleteTicket/{ticketId}", method=RequestMethod.DELETE)
-    public ResponseEntity<String> deleteTicket(@PathVariable Long ticketId) {
-        if (!ticketService.existsById(ticketId)) {
-            return ticketNotFound(ticketId);
-        }
-        ticketService.deleteTicket(ticketId);
-        return ResponseEntity.ok().body(String.format("DELETED - Ticket ID: %d", ticketId));
-    }
 
+    /*********************************** PUT METHODS **************************************************/
     @RequestMapping(value="/approveTicket/{ticketId}", method=RequestMethod.PUT)
     public ResponseEntity<String> approveTicket(@PathVariable Long ticketId, @RequestParam Long managerId, 
     @RequestParam(required=false) Long assigneeId,

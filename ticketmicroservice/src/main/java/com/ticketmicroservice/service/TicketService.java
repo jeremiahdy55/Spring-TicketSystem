@@ -16,6 +16,7 @@ import com.ticketmicroservice.domain.Ticket;
 import com.ticketmicroservice.domain.TicketHistory;
 import com.ticketmicroservice.domain.TicketHistoryAction;
 import com.ticketmicroservice.domain.TicketStatus;
+import com.ticketmicroservice.email.ResolutionEmail;
 import com.ticketmicroservice.email.SimpleEmail;
 import com.ticketmicroservice.jms.MessageSender;
 import com.ticketmicroservice.repository.EmployeeRepository;
@@ -37,50 +38,14 @@ public class TicketService {
     @Autowired
     MessageSender messageSender;
 
-    // Create the base notification email for ticket creation, assignment, and updates and send
-    // to notificationmicroservice to be emailed to the the receipient (can be USER or ADMIN)
-    public void sendTicketLifecycleEmail(Ticket ticket, Employee recipient, String comments) {
-        // Send the Ticket Update Email (SimpleMailMessage)
-        Employee createdByEmployee = ticket.getCreatedBy();
-        String receipientEmailAddress = createdByEmployee.getEmail();
-        String emailSubject = ticket.getStatus().name() + " ticket ID: " + ticket.getId();
-        String emailBody = "Successfully " + ticket.getStatus().name() + " ticket ID: " + ticket.getId() + "\n" 
-            + "Title: " + ticket.getTitle() + "\n"
-            + "Description: " + ticket.getDescription() + "\n"
-            + "Priority: " + ticket.getPriority() + "\n"
-            + "Category: " + ticket.getCategory() + "\n"
-            + "comments: " + comments;
-        SimpleEmail email = new SimpleEmail(List.of(receipientEmailAddress), emailBody, emailSubject);
-        System.out.println(email.getRecipients());
-        try {
-            messageSender.sendToNotificationMicroservice(email);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+    /*********************************** DELETE METHODS ***********************************/
+    public void deleteTicket(Long id) {
+        ticketRepository.deleteById(id);
     }
 
-    // Create the notification email for ticket assign and send it via JMS 
-    // to notificationmicroservice to be emailed to the ADMIN assignee
-    public void sendAssignedTicketEmail(Ticket ticket, String comments) {
-        // Send the Ticket Assigned Email (SimpleMailMessage)
-        Employee assigneeEmployee = ticket.getAssignee();
-        String receipientEmailAddress = assigneeEmployee.getEmail();
-        String emailSubject = " ticket ID: " + ticket.getId();
-        String emailBody = "Successfully created ticket ID: " + ticket.getId() + "\n" 
-            + "Title: " + ticket.getTitle() + "\n"
-            + "Description: " + ticket.getDescription() + "\n"
-            + "Priority: " + ticket.getPriority() + "\n"
-            + "Category: " + ticket.getCategory() + "\n"
-            + "comments: " + comments;
-        SimpleEmail email = new SimpleEmail(List.of(receipientEmailAddress), emailBody, emailSubject);
-        System.out.println(email.getRecipients());
-        try {
-            messageSender.sendToNotificationMicroservice(email);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
+    /*********************************** CREATE METHODS ***********************************/
     // CREATE w/o comments
     public Ticket createTicket(Ticket ticket) {
         Ticket savedTicket = ticketRepository.save(ticket);
@@ -99,11 +64,8 @@ public class TicketService {
         return savedTicket;
     }
 
-    // DELETE
-    public void deleteTicket(Long id) {
-        ticketRepository.deleteById(id);
-    }
-
+    
+    /*********************************** READ METHODS ***********************************/
     // READ (ALL)
     public List<JsonNode> findAllTickets() {
         return convertTicketsToJsonNodes(ticketRepository.findAll());
@@ -150,11 +112,8 @@ public class TicketService {
         return convertTicketsToJsonNodes(ticketRepository.findByStatusIn(statuses));
     }
 
-    // Check if Ticket exists
-    public boolean existsById(Long id) {
-        return ticketRepository.existsById(id);
-    }
 
+    /*********************************** UPDATE METHODS ***********************************/
     // UPDATE Ticket
     public Ticket updateTicketStatus(Long ticketId, Long employeeId, String action) {
         if (!ticketRepository.existsById(ticketId)) {
@@ -168,7 +127,11 @@ public class TicketService {
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), "");
             ticketHistoryService.createTicketHistory(actionLog);
-            sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), "");
+            if (returnTicket.getStatus().equals(TicketStatus.RESOLVED)) {
+                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), "");
+            } else {
+                sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), "");
+            }    
             return returnTicket;
         }
     }
@@ -186,7 +149,11 @@ public class TicketService {
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), comments);
             ticketHistoryService.createTicketHistory(actionLog);
-            sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), comments);
+            if (returnTicket.getStatus().equals(TicketStatus.RESOLVED)) {
+                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), comments);
+            } else {
+                sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), comments);
+            }            
             return returnTicket;
         }
     }
@@ -231,6 +198,57 @@ public class TicketService {
         }
     }
 
+
+    /*********************************** EMAIL METHODS **************************************************/
+    // Create the base notification email for ticket creation, assignment, and updates and send
+    // to notificationmicroservice to be emailed to the the receipient (can be USER or ADMIN)
+    public void sendTicketLifecycleEmail(Ticket ticket, Employee recipient, String comments) {
+        // Send the Ticket Update Email (SimpleMailMessage)
+        String receipientEmailAddress = recipient.getEmail();
+        String ticketStatus = ticket.getStatus().name().equals("OPEN") ? "CREATED" : ticket.getStatus().name();
+        String emailSubject = ticketStatus + " ticket ID: " + ticket.getId();
+        String emailBody = "Successfully " + ticketStatus + " ticket ID: " + ticket.getId() + "\n" 
+            + "Title: " + ticket.getTitle() + "\n"
+            + "Description: " + ticket.getDescription() + "\n"
+            + "Priority: " + ticket.getPriority() + "\n"
+            + "Category: " + ticket.getCategory() + "\n"
+            + "comments: " + comments;
+        SimpleEmail email = new SimpleEmail(List.of(receipientEmailAddress), emailBody, emailSubject);
+        try {
+            messageSender.sendSimpleEmailToNotificationMicroservice(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Create the notification email for ticket resolution and send it via JMS 
+    // to notificationmicroservice to be emailed to the USER
+    public void sendTicketResolutionEmail(Ticket ticket, Employee recipient, String comments) {
+        // Send the Ticket Resolution Email (MimeMessage)
+        String receipientEmailAddress = recipient.getEmail();
+        String emailSubject = ticket.getStatus().name() + " ticket ID: " + ticket.getId();
+        String emailBody = "<h2>Resolving ticket ID: " + ticket.getId() + "</h2><br>" 
+            + "<p>Resolved by: " + ticket.getAssignee().getId() + "<br>"
+            + "Title: " + ticket.getTitle() + "<br>"
+            + "Description: " + ticket.getDescription() + "<br>"
+            + "Priority: " + ticket.getPriority() + "<br>"
+            + "Category: " + ticket.getCategory() + "<br>"
+            + "comments: " + comments + "</p>";
+        ResolutionEmail email = new ResolutionEmail(List.of(receipientEmailAddress), emailBody, emailSubject, getHistory(ticket.getId()));
+        try {
+            messageSender.sendResolutionEmailToNotificationMicroservice(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /*********************************** UTILITY METHODS ***********************************/
+    // Check if Ticket exists
+    public boolean existsById(Long id) {
+        return ticketRepository.existsById(id);
+    }
+
     // Convert List<Ticket> to List<JsonNode>
     public List<JsonNode> convertTicketsToJsonNodes(List<Ticket> tickets) {
         List<JsonNode> returnList = new ArrayList<JsonNode>();
@@ -240,7 +258,7 @@ public class TicketService {
         return returnList;
     }
 
-    // Convert to JsonNode object
+    // Convert Ticket to JsonNode object
     public JsonNode convertToJsonNode(Ticket ticket) {
         ObjectMapper objectMapper = new ObjectMapper();
         Employee assignee = ticket.getAssignee();
@@ -279,6 +297,4 @@ public class TicketService {
             return returnList;
         }
     }
-
-    
 }

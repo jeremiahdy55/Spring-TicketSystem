@@ -16,7 +16,6 @@ public class MessageReceiver {
         if (message.contains("check tickets' statuses")) {
             // Check "PENDING/OPEN" tickets for emailing
             // Check RESOLVED tickets for auto-close
-            System.out.println("checking ticket statuses");
         }
         // messageSender.sendToNotificationMicroservice("sending back:" + message);
     }

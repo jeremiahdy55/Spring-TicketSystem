@@ -10,8 +10,10 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.notificationmicroservice.email.EmailService;
+import com.notificationmicroservice.email.BaseEmail;
+import com.notificationmicroservice.email.ResolutionEmail;
 import com.notificationmicroservice.email.SimpleEmail;
+import com.notificationmicroservice.service.EmailService;
 
 @Component
 public class MessageReceiver {
@@ -28,28 +30,24 @@ public class MessageReceiver {
     @JmsListener(destination = "queue.notificationMS")
     public void receive(Message message) throws Exception {
         if (message instanceof TextMessage) {
+            // Cast to TextMessage then convert to a BaseEmail wrapper Object
             TextMessage textMessage = (TextMessage) message;
             String messageContent = textMessage.getText();
-            System.out.println(messageContent);
-            try {
-                // Deserialize the object
-                SimpleEmail simpleEmail = objectMapper.readValue(messageContent, SimpleEmail.class);
-                for (String recipient : simpleEmail.getRecipients()) {
-                    emailService.sendSimpleEmail(recipient, simpleEmail.getSubject(), simpleEmail.getBody());
-                }
-            } catch (JsonMappingException e) {
-                System.out.println("Not a SimpleEmail object");
-            }
-            // try {
-            //     // Deserialize the object
-            //     SimpleEmail simpleEmail = objectMapper.readValue(messageContent, SimpleEmail.class);
-            //     for (String recipient : simpleEmail.getRecipients()) {
-            //         emailService.sendSimpleEmail(recipient, simpleEmail.getSubject(), simpleEmail.getBody());
-            //     }
-            // } catch (JsonMappingException e) {
-            //     System.out.println("Not a SimpleEmail object");
-            // }
+            BaseEmail baseEmail = objectMapper.readValue(messageContent, BaseEmail.class);
 
+            // Send an email specific to the BaseEmail.child class
+            if (baseEmail instanceof SimpleEmail) {
+                SimpleEmail simple = (SimpleEmail) baseEmail;
+                for (String recipient : simple.getRecipients()) {
+                    emailService.sendSimpleEmail(recipient, simple.getSubject(), simple.getBody());
+                }
+            } else if (baseEmail instanceof ResolutionEmail) {
+                ResolutionEmail res = (ResolutionEmail) baseEmail;
+                for (String recipient : res.getRecipients()) {
+                    emailService.sendResolutionEmail(recipient, res.getSubject(), res.getBody(),
+                            res.getTicketHistoryData());
+                }
+            }
         } else {
             System.out.println("Message is not of type:TextMessage, unsure how to handle");
             System.out.println(message);

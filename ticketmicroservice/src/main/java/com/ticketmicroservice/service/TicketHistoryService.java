@@ -1,5 +1,6 @@
 package com.ticketmicroservice.service;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,13 +47,14 @@ public class TicketHistoryService {
 
     // Convert to JsonNode object
     public JsonNode convertToJsonNode(TicketHistory ticketHistory) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> data = new HashMap<>();
         data.put("id", ticketHistory.getId());
         data.put("ticket", ticketHistory.getTicket().getId());
         data.put("action", ticketHistory.getAction().name());
         data.put("actionBy", ticketHistory.getActionBy().getId());
-        data.put("actionDate", ticketHistory.getActionDate().toString());
+        data.put("actionDate", sdf.format(ticketHistory.getActionDate()));
         data.put("comments", ticketHistory.getComments());
         JsonNode jsonNode = objectMapper.valueToTree(data);
         return jsonNode;

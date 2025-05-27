@@ -37,8 +37,14 @@
   
 		<div class="form-group mb-3">
 			<label for="department">Department</label>
-			<input type="text" class="form-control" id="department" name="department">
-		</div>
+			<select class="form-control" id="department" name="department">
+			  <option value="IT">IT</option>
+			  <option value="Sales">Sales</option>
+			  <option value="HR">HR</option>
+			  <option value="Accounting">Accounting</option>
+			  <option value="Marketing">Marketing</option>
+			</select>
+		  </div>
   
 		<div class="form-group mb-4">
 			<label for="project">Project</label>

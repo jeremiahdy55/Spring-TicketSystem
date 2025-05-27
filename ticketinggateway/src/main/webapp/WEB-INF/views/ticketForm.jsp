@@ -60,14 +60,20 @@
                 <option value="LOW">LOW</option>
                 <option value="MEDIUM">MEDIUM</option>
                 <option value="HIGH">HIGH</option>
-                <!-- this is the placeholder and will disappear once interacted -->
                 <option value="" selected disabled hidden>Choose Priority</option>
             </select>
         </div>
         <div class="mb-3">
             <label for="formCategory" class="form-label">Category</label>
-            <input type="text" class="form-control" id="category" name="category" placeholder="Default Category">
-        </div>
+            <select class="form-control" id="formCategory" name="category">
+              <option value="Technical Help">Technical Help</option>
+              <option value="Software Installation">Software Installation</option>
+              <option value="Networking Issues">Networking Issues</option>
+              <option value="Connection Problems">Connection Problems</option>
+              <option value="Other">Other</option>
+              <option value="" selected disabled hidden>Choose Category</option>
+            </select>
+          </div>
 
         <div class="mb-3">
             <label for="files" class="form-label">Choose file</label>

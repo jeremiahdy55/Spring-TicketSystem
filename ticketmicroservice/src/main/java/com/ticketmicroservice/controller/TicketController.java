@@ -55,7 +55,7 @@ public class TicketController {
         return ResponseEntity.ok().body(String.format("DELETED - Ticket ID: %d", ticketId));
     }
 
-    
+
     /*********************************** POST METHODS **************************************************/
     @RequestMapping(value="/postTicket", method=RequestMethod.POST)
     public ResponseEntity<String> postTicket(@RequestBody TicketRequest request) {
@@ -151,7 +151,7 @@ public class TicketController {
 
     @RequestMapping(value="/getOpenTickets", method=RequestMethod.GET)
     public ResponseEntity<List<JsonNode>> getOpenTickets() {
-        List<TicketStatus> statuses = List.of(TicketStatus.OPEN, TicketStatus.PENDING_APPROVAL, TicketStatus.REOPENED);
+        List<TicketStatus> statuses = List.of(TicketStatus.OPEN, TicketStatus.PENDING_APPROVAL);
 		return ResponseEntity.ok(ticketService.getTicketsByStatus(statuses));
     }
 

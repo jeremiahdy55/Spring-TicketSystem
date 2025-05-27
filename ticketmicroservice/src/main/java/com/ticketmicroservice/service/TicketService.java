@@ -1,5 +1,8 @@
 package com.ticketmicroservice.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,7 +67,7 @@ public class TicketService {
         return savedTicket;
     }
 
-    
+
     /*********************************** READ METHODS ***********************************/
     // READ (ALL)
     public List<JsonNode> findAllTickets() {
@@ -100,18 +103,36 @@ public class TicketService {
         return convertTicketsToJsonNodes(ticketRepository.findByStatusInAndAssignee_Id(statuses, assigneeId));
     }
 
-     // READ (ALL) 
-     // WHERE CREATEDBY.ID = createdById and STATUS IN (statuses)
-     public List<JsonNode> getTicketsByStatusInAndCreatedById(List<TicketStatus> statuses, Long createdById) {
+    // READ (ALL) 
+    // WHERE CREATEDBY.ID = createdById and STATUS IN (statuses)
+    public List<JsonNode> getTicketsByStatusInAndCreatedById(List<TicketStatus> statuses, Long createdById) {
         return convertTicketsToJsonNodes(ticketRepository.findByStatusInAndCreatedBy_Id(statuses, createdById));
     }
 
-     // READ (ALL) 
-     // WHERE STATUS IN (statuses)
-     public List<JsonNode> getTicketsByStatus(List<TicketStatus> statuses) {
+    // READ (ALL) 
+    // WHERE STATUS IN (statuses)
+    public List<JsonNode> getTicketsByStatus(List<TicketStatus> statuses) {
         return convertTicketsToJsonNodes(ticketRepository.findByStatusIn(statuses));
     }
 
+    public List<JsonNode> getPendingTicketsForNotification() {
+        List<Ticket> openTickets = ticketRepository.findByStatusIn(List.of(TicketStatus.OPEN, TicketStatus.PENDING_APPROVAL));
+        LocalDate today = LocalDate.now();
+        long daysBetween = 0L;
+        LocalDate createDate = null;
+        List<Ticket> stillOpenTickets = new ArrayList<>();
+
+        for (Ticket ticket: openTickets) {
+            daysBetween = 0L; createDate = null; // reset the values for fresh comparisons
+            createDate = ticket.getCreationDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            daysBetween = ChronoUnit.DAYS.between(today, createDate);
+            if (Math.abs(daysBetween) >= 7) stillOpenTickets.add(ticket);
+        }
+
+        
+
+        return null;
+    }
 
     /*********************************** UPDATE METHODS ***********************************/
     // UPDATE Ticket
@@ -227,7 +248,7 @@ public class TicketService {
         // Send the Ticket Resolution Email (MimeMessage)
         String receipientEmailAddress = recipient.getEmail();
         String emailSubject = ticket.getStatus().name() + " ticket ID: " + ticket.getId();
-        String emailBody = "<h2>Resolving ticket ID: " + ticket.getId() + "</h2><br>" 
+        String emailBody = "<h2>Resolving ticket ID: " + ticket.getId() + "</h2>" 
             + "<p>Resolved by: " + ticket.getAssignee().getId() + "<br>"
             + "Title: " + ticket.getTitle() + "<br>"
             + "Description: " + ticket.getDescription() + "<br>"

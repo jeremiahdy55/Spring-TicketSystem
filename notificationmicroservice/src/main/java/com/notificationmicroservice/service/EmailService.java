@@ -22,6 +22,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 @Service
@@ -43,35 +44,44 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    public void sendResolutionEmail(String recipient, String subject, String body, List<JsonNode> tableData) throws Exception {
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+    public void sendResolutionEmail(String recipient, String subject, String body, List<JsonNode> tableData) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
-        helper.setTo(recipient);
-        helper.setSubject(subject);
-        helper.setText(body, true); // true for HTML
+            helper.setTo(recipient);
+            helper.setSubject(subject);
+            helper.setText(body, true); // true for HTML
 
-        // Knowing the subject line's formula is "<STATUS> ticket ID: <ticketID>"", get the ticketID value
-        String ticketId = subject.substring(subject.lastIndexOf(' ') + 1);
+            // Knowing the subject line's formula is "<STATUS> ticket ID: <ticketID>"", get
+            // the ticketID value
+            String ticketId = subject.substring(subject.lastIndexOf(' ') + 1);
 
-        // Add the PDF attachment
-        byte[] pdfData = generateTicketHistoryTablePdf(tableData);
-        InputStreamSource attachment = new ByteArrayResource(pdfData);
-        String fileName = "ticket_" + ticketId +"_history.pdf";
-        helper.addAttachment(fileName, attachment);
+            // Add the PDF attachment
+            byte[] pdfData = generateTicketHistoryTablePdf(tableData);
+            InputStreamSource attachment = new ByteArrayResource(pdfData);
+            String fileName = "ticket_" + ticketId + "_history.pdf";
+            helper.addAttachment(fileName, attachment);
 
-        mailSender.send(mimeMessage);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void sendManagerReminderEmail(String recipient, String subject, String body) throws Exception {
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+    public void sendManagerReminderEmail(String recipient, String subject, String body) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
-        helper.setTo(recipient);
-        helper.setSubject(subject);
-        helper.setText(body, true); // true for HTML
+            helper.setTo(recipient);
+            helper.setSubject(subject);
+            helper.setText(body, true); // true for HTML
 
-        mailSender.send(mimeMessage);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 
     public byte[] generateTicketHistoryTablePdf(List<JsonNode> data) {
@@ -81,13 +91,14 @@ public class EmailService {
         try {
             PdfWriter.getInstance(document, outputStream);
             document.open();
-            // document.add(new Paragraph("Hello World! This is a PDF from MIME message from notfiMS"));
+            // document.add(new Paragraph("Hello World! This is a PDF from MIME message from
+            // notfiMS"));
             document.add(Chunk.NEWLINE);
 
             if (!data.isEmpty()) {
                 List<String> columns = List.of("actionDate", "actionBy", "action", "comments");
                 PdfPTable table = new PdfPTable(columns.size());
-                float[] columnWidths = {4f, 2f, 3f, 6f};
+                float[] columnWidths = { 4f, 2f, 3f, 6f };
                 table.setWidths(columnWidths);
                 table.setWidthPercentage(100);
 
@@ -116,17 +127,19 @@ public class EmailService {
         return outputStream.toByteArray();
     }
 
-    public PdfPCell buildDataCell (String cellValue, boolean allowWrap) {
+    public PdfPCell buildDataCell(String cellValue, boolean allowWrap) {
         PdfPCell cell = new PdfPCell(new Phrase(cellValue));
         cell.setPadding(5f);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+
         // Allow wrapping on the comments column
-        if (allowWrap) { cell.setNoWrap(false);}
+        if (allowWrap) { cell.setNoWrap(false); }
+
         return cell;
     }
 
-    public PdfPCell buildHeaderCell (String cellValue) {
+    public PdfPCell buildHeaderCell(String cellValue) {
         PdfPCell headerCell = new PdfPCell(new Phrase(cellValue));
         headerCell.setBackgroundColor(BaseColor.LIGHT_GRAY);
         headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);

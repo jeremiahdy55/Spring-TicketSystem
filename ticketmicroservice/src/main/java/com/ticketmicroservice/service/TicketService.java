@@ -16,6 +16,8 @@ import com.ticketmicroservice.domain.Ticket;
 import com.ticketmicroservice.domain.TicketHistory;
 import com.ticketmicroservice.domain.TicketHistoryAction;
 import com.ticketmicroservice.domain.TicketStatus;
+import com.ticketmicroservice.email.SimpleEmail;
+import com.ticketmicroservice.jms.MessageSender;
 import com.ticketmicroservice.repository.EmployeeRepository;
 import com.ticketmicroservice.repository.TicketRepository;
 
@@ -31,11 +33,60 @@ public class TicketService {
     @Autowired
     EmployeeRepository employeeRepository; // REPOSITORY //
 
+    // For communication between ticketmicroservice and notificationmicroservice via JMS
+    @Autowired
+    MessageSender messageSender;
+
+    // Create the base notification email for ticket creation, assignment, and updates and send
+    // to notificationmicroservice to be emailed to the the receipient (can be USER or ADMIN)
+    public void sendTicketLifecycleEmail(Ticket ticket, Employee recipient, String comments) {
+        // Send the Ticket Update Email (SimpleMailMessage)
+        Employee createdByEmployee = ticket.getCreatedBy();
+        String receipientEmailAddress = createdByEmployee.getEmail();
+        String emailSubject = ticket.getStatus().name() + " ticket ID: " + ticket.getId();
+        String emailBody = "Successfully " + ticket.getStatus().name() + " ticket ID: " + ticket.getId() + "\n" 
+            + "Title: " + ticket.getTitle() + "\n"
+            + "Description: " + ticket.getDescription() + "\n"
+            + "Priority: " + ticket.getPriority() + "\n"
+            + "Category: " + ticket.getCategory() + "\n"
+            + "comments: " + comments;
+        SimpleEmail email = new SimpleEmail(List.of(receipientEmailAddress), emailBody, emailSubject);
+        System.out.println(email.getRecipients());
+        try {
+            messageSender.sendToNotificationMicroservice(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Create the notification email for ticket assign and send it via JMS 
+    // to notificationmicroservice to be emailed to the ADMIN assignee
+    public void sendAssignedTicketEmail(Ticket ticket, String comments) {
+        // Send the Ticket Assigned Email (SimpleMailMessage)
+        Employee assigneeEmployee = ticket.getAssignee();
+        String receipientEmailAddress = assigneeEmployee.getEmail();
+        String emailSubject = " ticket ID: " + ticket.getId();
+        String emailBody = "Successfully created ticket ID: " + ticket.getId() + "\n" 
+            + "Title: " + ticket.getTitle() + "\n"
+            + "Description: " + ticket.getDescription() + "\n"
+            + "Priority: " + ticket.getPriority() + "\n"
+            + "Category: " + ticket.getCategory() + "\n"
+            + "comments: " + comments;
+        SimpleEmail email = new SimpleEmail(List.of(receipientEmailAddress), emailBody, emailSubject);
+        System.out.println(email.getRecipients());
+        try {
+            messageSender.sendToNotificationMicroservice(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // CREATE w/o comments
     public Ticket createTicket(Ticket ticket) {
         Ticket savedTicket = ticketRepository.save(ticket);
         TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.CREATED, ticket.getCreatedBy(), ticket.getCreationDate(), "");
         ticketHistoryService.createTicketHistory(actionLog);
+        sendTicketLifecycleEmail(savedTicket, savedTicket.getCreatedBy(), "");
         return savedTicket;
     }
 
@@ -44,6 +95,7 @@ public class TicketService {
         Ticket savedTicket = ticketRepository.save(ticket);
         TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.CREATED, ticket.getCreatedBy(), ticket.getCreationDate(), comments);
         ticketHistoryService.createTicketHistory(actionLog);
+        sendTicketLifecycleEmail(savedTicket, savedTicket.getCreatedBy(), comments);
         return savedTicket;
     }
 
@@ -116,6 +168,7 @@ public class TicketService {
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), "");
             ticketHistoryService.createTicketHistory(actionLog);
+            sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), "");
             return returnTicket;
         }
     }
@@ -133,6 +186,7 @@ public class TicketService {
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), comments);
             ticketHistoryService.createTicketHistory(actionLog);
+            sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), comments);
             return returnTicket;
         }
     }
@@ -147,10 +201,12 @@ public class TicketService {
             Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
             Employee assignEmployee = employeeRepository.findById(assigneeId).orElse(null);
             Employee actionBy = employeeRepository.findById(managerId).orElse(null);
+            ticket.setStatus(TicketStatus.ASSIGNED);
             ticket.setAssignee(assignEmployee);
             Ticket returnTicket = ticketRepository.save(ticket);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.ASSIGNED, actionBy, new Date(), "");
             ticketHistoryService.createTicketHistory(actionLog);
+            sendTicketLifecycleEmail(returnTicket, returnTicket.getAssignee(), "");
             return returnTicket;
         }
     }
@@ -165,10 +221,12 @@ public class TicketService {
             Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
             Employee assignEmployee = employeeRepository.findById(assigneeId).orElse(null);
             Employee actionBy = employeeRepository.findById(managerId).orElse(null);
+            ticket.setStatus(TicketStatus.ASSIGNED);
             ticket.setAssignee(assignEmployee);
             Ticket returnTicket = ticketRepository.save(ticket);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.ASSIGNED, actionBy, new Date(), comments);
             ticketHistoryService.createTicketHistory(actionLog);
+            sendTicketLifecycleEmail(returnTicket, returnTicket.getAssignee(), comments);
             return returnTicket;
         }
     }

@@ -25,7 +25,7 @@
                 method: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles) : '<h4>No Tickets Found</h4>';
+                    let htmlContent = (data.length !== 0) ? loadTicketTableHtml(data, roles, null) : '<h4>No Tickets Found</h4>';
                     $('#ticketsDiv').html(htmlContent);
                     if (htmlContent === '<h4>No Tickets Found</h4>') { // If there's action to be taken, allow comments
                         $('#commentsSection').prop('hidden', true);

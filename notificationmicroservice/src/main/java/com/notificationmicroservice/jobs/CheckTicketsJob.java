@@ -17,13 +17,14 @@ public class CheckTicketsJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LocalTime now = LocalTime.now(); // Local system time
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        String time = now.format(formatter);
-        String message = "Checking ticket and sending JMS to ticketmicroservice at: " + time;
-        System.out.println(message);
-        messageSender.sendToTicketMicroservice(message);
+        String localTime = LocalTime.now().format(formatter); // Local system time
+        String message = localTime + ": check tickets' statuses";
+        try {
+            messageSender.sendToTicketMicroservice(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        // System.out.println("Checking ticket");
     }
 }

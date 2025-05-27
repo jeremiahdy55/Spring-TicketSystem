@@ -4,6 +4,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -15,6 +16,18 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 public class AppConfig {
+
+	@Value("${spring.datasource.url}")
+	private String dbURL;
+
+	@Value("${spring.datasource.driverClassName}")
+	private String dbDriver;
+
+	@Value("${spring.datasource.username}")
+	private String dbUsername;
+
+	@Value("${spring.datasource.password}")
+	private String dbPassword;
 
 	@Bean
     InternalResourceViewResolver viewResolver() {
@@ -29,10 +42,10 @@ public class AppConfig {
 	@Bean
 	public DataSource dataSource(){
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setUrl("jdbc:mysql://localhost:3306/TICKETSYSTEM"); //spring.datasource.url
-		dataSource.setDriverClassName("com.mysql.jdbc.Driver"); //spring.datasource.driverClassName
-		dataSource.setUsername("root"); //spring.datasource.username
-		dataSource.setPassword("mysqlpassword"); //spring.datasource.password
+		dataSource.setUrl(dbURL); //spring.datasource.url
+		dataSource.setDriverClassName(dbDriver); //spring.datasource.driverClassName
+		dataSource.setUsername(dbUsername); //spring.datasource.username
+		dataSource.setPassword(dbPassword); //spring.datasource.password
 		/*
 		dataSource.setUrl("jdbc:oracle:thin:@localhost:1521:xe");
 		dataSource.setDriverClassName("oracle.jdbc.OracleDriver");

@@ -84,6 +84,7 @@ public class TicketMicroserviceClient {
         Employee thisUser = employeeService.findByName(principal.getName());
         List<String> fileAttachmentPaths = null;
 
+        System.out.println("Request received");
         // Handle file upload (optional save)
         try {
             if (files != null && !files.isEmpty()) { // if there are files

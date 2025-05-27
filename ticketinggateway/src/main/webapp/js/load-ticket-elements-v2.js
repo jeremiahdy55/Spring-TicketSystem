@@ -46,17 +46,19 @@ function loadTicketTableHtml(ticketData, authority, adminIdList) {
         useActions = useActions || managerAction || adminAction || userAction
 
         // Get the necessary Employee action buttons depending on conditionals above
-        approveBtn = (managerAction) ?  getApproveBtn(ticket.id) : ""
-        rejectBtn = (managerAction) ?  getRejectBtn(ticket.id) : ""
         resolveBtn = (adminAction) ? getResolveBtn(ticket.id) : ""
         closeBtn = (userAction) ?  getCloseBtn(ticket.id) : ""
         reopenBtn = (userAction) ?  getReopenBtn(ticket.id) : ""
         deleteBtn = (["USER", "MANAGER"].some(role => authority.includes(role))) ? tableDataWrapper(getDeleteBtn(ticket.id)) : ""
 
-        // Build the approveTicket button with a adminSelect element to assign the ticket to a specified ADMIN employee
-        adminSelectElement = (managerAction && adminIdList.length !== 0) ? getAdminSelectElement(adminIdList) : ""
-        console.log(adminSelectElement)
-        approveContainer = (approveBtn && adminSelectElement) ? adminSelectElement + approveBtn : ""
+        // Build the approveTicket button with an adminSelect element to assign the ticket to a specified ADMIN employee
+        // Only if adminIdList is not null
+        if (adminIdList) {
+            approveBtn = (managerAction) ?  getApproveBtn(ticket.id) : ""
+            rejectBtn = (managerAction) ?  getRejectBtn(ticket.id) : ""
+            adminSelectElement = (managerAction && adminIdList.length !== 0) ? getAdminSelectElement(adminIdList) : ""
+            approveContainer = (approveBtn && adminSelectElement) ? adminSelectElement + approveBtn : ""
+        }
 
         // Build the HTML element that will hold the Employee action buttons and the details Button
         actionsBody = '<div class="d-flex justify-content-center gap-2 flex-wrap" id="actionsBody">'
@@ -284,12 +286,14 @@ function tableDataWrapper(htmlContent) {
 
 ////// Declare the html content for Employee action buttons here //////
 function getAdminSelectElement(adminIdList) {
-    let selectElement = `<select class="form-select" id="adminSelect" name="adminSelect">`
-    for (const adminId of adminIdList) { // this is a list of numeric values of each Employee's IDs with Role = ADMIN
-        selectElement += `<option value="${adminId}">${adminId}</option>`
+    let selectElement = ""
+    if (adminIdList) {
+        selectElement = `<select class="form-select" id="adminSelect" name="adminSelect">`
+        for (const adminId of adminIdList) { // this is a list of numeric values of each Employee's IDs with Role = ADMIN
+            selectElement += `<option value="${adminId}">${adminId}</option>`
+        }
+        selectElement += '<option value="" selected disabled hidden>Choose Assignee</option></select>'
     }
-    selectElement += '<option value="" selected disabled hidden>Choose Assignee</option></select>'
-    console.log(selectElement)
     return selectElement
 }
 

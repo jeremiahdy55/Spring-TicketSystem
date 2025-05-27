@@ -46,6 +46,7 @@ public class TicketController {
 
     @RequestMapping(value="/postTicket", method=RequestMethod.POST)
     public ResponseEntity<String> postTicket(@RequestBody TicketRequest request) {
+        System.out.println("Request received");
         // Check for the ENUM TYPES
         try {
             TicketPriority.valueOf(request.getPriority());
@@ -92,6 +93,7 @@ public class TicketController {
         } else {
             savedTicket = ticketService.createTicket(ticket, request.getComments());
         }
+
         return ResponseEntity.ok().body("Successfully saved ticket with id: "+ savedTicket.getId());
     }
 

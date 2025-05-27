@@ -12,7 +12,12 @@ public class MessageReceiver {
 
     @JmsListener(destination = "queue.ticketMS")
     public void receive(String message) {
-        System.out.println("ticket microservice received: " + message);
-        messageSender.sendToNotificationMicroservice("sending back:" + message);
+        System.out.println(message);
+        if (message.contains("check tickets' statuses")) {
+            // Check "PENDING/OPEN" tickets for emailing
+            // Check RESOLVED tickets for auto-close
+            System.out.println("checking ticket statuses");
+        }
+        // messageSender.sendToNotificationMicroservice("sending back:" + message);
     }
 }

@@ -7,6 +7,9 @@ target/
 ## ignore all file attachments on tickets
 **/src/main/webapp/uploads/
 
+## ignore secrets.properties (sensitive data)
+**/src/main/resources/secrets.properties
+
 ### STS ###
 .apt_generated
 .classpath

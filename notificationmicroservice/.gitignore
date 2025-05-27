@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+## Ignore secrets.properties (sensitive data)
+**/src/main/resources/secrets.properties
+
 ### STS ###
 .apt_generated
 .classpath

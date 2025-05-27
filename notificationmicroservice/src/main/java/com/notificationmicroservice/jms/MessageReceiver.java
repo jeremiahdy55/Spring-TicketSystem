@@ -45,7 +45,7 @@ public class MessageReceiver {
                 ResolutionEmail email = (ResolutionEmail) baseEmail;
                 for (String recipient : email.getRecipients()) {
                     emailService.sendResolutionEmail(recipient, email.getSubject(), email.getBody(),
-                            email.getTicketHistoryData());
+                            email.getTicket(), email.getTicketHistoryData());
                 }
             } else if (baseEmail instanceof ManagerReminderEmail) {
                 ManagerReminderEmail email = (ManagerReminderEmail) baseEmail;

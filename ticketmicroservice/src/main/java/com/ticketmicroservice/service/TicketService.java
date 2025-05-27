@@ -238,7 +238,7 @@ public class TicketService {
             + "Priority: " + ticket.getPriority() + "<br>"
             + "Category: " + ticket.getCategory() + "<br>"
             + "comments: " + comments + "</p>";
-        ResolutionEmail email = new ResolutionEmail(List.of(recipientEmailAddress), emailBody, emailSubject, getHistory(ticket.getId()));
+        ResolutionEmail email = new ResolutionEmail(List.of(recipientEmailAddress), emailBody, emailSubject, convertToJsonNode(ticket), getHistory(ticket.getId()));
         try {
             messageSender.sendResolutionEmailToNotificationMicroservice(email);
         } catch (Exception e) {

@@ -16,8 +16,10 @@ import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Section;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -44,7 +46,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    public void sendResolutionEmail(String recipient, String subject, String body, List<JsonNode> tableData) {
+    public void sendResolutionEmail(String recipient, String subject, String body, JsonNode ticket, List<JsonNode> tableData) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -58,7 +60,7 @@ public class EmailService {
             String ticketId = subject.substring(subject.lastIndexOf(' ') + 1);
 
             // Add the PDF attachment
-            byte[] pdfData = generateTicketHistoryTablePdf(tableData);
+            byte[] pdfData = generateTicketHistoryTablePdf(ticket, tableData);
             InputStreamSource attachment = new ByteArrayResource(pdfData);
             String fileName = "ticket_" + ticketId + "_history.pdf";
             helper.addAttachment(fileName, attachment);
@@ -84,18 +86,48 @@ public class EmailService {
         }
     }
 
-    public byte[] generateTicketHistoryTablePdf(List<JsonNode> data) {
+    public byte[] generateTicketHistoryTablePdf(JsonNode ticket, List<JsonNode> data) {
         Document document = new Document();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try {
             PdfWriter.getInstance(document, outputStream);
             document.open();
-            // document.add(new Paragraph("Hello World! This is a PDF from MIME message from
-            // notfiMS"));
+
+            // Make title
+            Font titleFont = new Font(Font.FontFamily.HELVETICA, 24, Font.BOLD);
+            Paragraph title = new Paragraph("TICKET ID: " + ticket.get("id").asText(), titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
             document.add(Chunk.NEWLINE);
 
+            // Add the ticket details
+            Font sectionFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD);
+            Font textFont = new Font(Font.FontFamily.HELVETICA, 12);
+            Paragraph ticketDetailsSection = new Paragraph("Ticket Details", sectionFont);
+            ticketDetailsSection.setSpacingAfter(10f);
+            document.add(ticketDetailsSection);
+
+            document.add(new Paragraph("Title: " + ticket.get("title").asText(), textFont));
+            document.add(new Paragraph("Creation Date: " + ticket.get("creationDate").asText(), textFont));
+            document.add(new Paragraph("Resolved By: " + ticket.get("assignee").asText(), textFont));
+            document.add(new Paragraph("Priority: " + ticket.get("priority").asText(), textFont));
+            document.add(new Paragraph("Category: " + ticket.get("category").asText(), textFont));
+            document.add(Chunk.NEWLINE);
+
+            // Add the description paragraph
+            Paragraph descriptionSection = new Paragraph("Description", sectionFont);
+            descriptionSection.add(new Paragraph(ticket.get("description").asText()));
+            document.add(descriptionSection);
+            document.add(Chunk.NEWLINE);
+
+            // Create the ticketHistory table
             if (!data.isEmpty()) {
+                // Table header
+                Paragraph ticketHistoryHeader = new Paragraph("Ticket History", sectionFont);
+                ticketHistoryHeader.setSpacingAfter(10f);
+                document.add(ticketHistoryHeader);
+
                 List<String> columns = List.of("actionDate", "actionBy", "action", "comments");
                 PdfPTable table = new PdfPTable(columns.size());
                 float[] columnWidths = { 4f, 2f, 3f, 6f };

@@ -10,14 +10,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 @JsonTypeName("resolution")
 public class ResolutionEmail extends BaseEmail {
 
+	private JsonNode ticket; // upon ticket resolution, get the ticket details as a JsonNode
+
 	private List<JsonNode> ticketHistoryData; // upon ticket resolution, this is used to generate a PDF
 
 	public ResolutionEmail() {}  // no-args constructor is used for deserialization in MessageReceiver
 
-	public ResolutionEmail(List<String> recipients, String body, String subject, List<JsonNode> ticketHistoryData) {
+	public ResolutionEmail(List<String> recipients, String body, String subject, JsonNode ticket, List<JsonNode> ticketHistoryData) {
 		setRecipients(recipients);
 		setBody(body);
 		setSubject(subject);
+		this.ticket = ticket;
 		this.ticketHistoryData = ticketHistoryData;
 	}
 
@@ -27,6 +30,14 @@ public class ResolutionEmail extends BaseEmail {
 
 	public void setTicketHistoryData(List<JsonNode> ticketHistoryData) {
 		this.ticketHistoryData = ticketHistoryData;
+	}
+
+	public JsonNode getTicket() {
+		return ticket;
+	}
+
+	public void setTicket(JsonNode ticket) {
+		this.ticket = ticket;
 	}
 
 }

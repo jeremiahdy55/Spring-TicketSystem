@@ -1,6 +1,7 @@
 package com.notificationmicroservice.jms;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.JmsException;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ public class MessageSender {
         this.jmsTemplate = jmsTemplate;
     }
 
-    public void sendToTicketMicroservice(String message) throws Exception {
+    public void sendToTicketMicroservice(String message) throws JmsException {
         jmsTemplate.convertAndSend("queue.ticketMS", message);
     }
 }

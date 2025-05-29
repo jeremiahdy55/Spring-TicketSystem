@@ -27,10 +27,13 @@ import com.ticketmicroservice.email.ResolutionEmail;
 import com.ticketmicroservice.email.SimpleEmail;
 import com.ticketmicroservice.jms.MessageSender;
 import com.ticketmicroservice.repository.EmployeeRepository;
+import com.ticketmicroservice.repository.TicketHistoryRepository;
 import com.ticketmicroservice.repository.TicketRepository;
 
 @Service
 public class TicketService {
+
+    private final TicketHistoryRepository ticketHistoryRepository;
 
     @Autowired
     TicketRepository ticketRepository; // REPOSITORY //
@@ -44,6 +47,11 @@ public class TicketService {
     // For communication between ticketmicroservice and notificationmicroservice via JMS
     @Autowired
     MessageSender messageSender;
+
+
+    TicketService(TicketHistoryRepository ticketHistoryRepository) {
+        this.ticketHistoryRepository = ticketHistoryRepository;
+    }
 
 
     /*********************************** DELETE METHODS ***********************************/
@@ -130,15 +138,20 @@ public class TicketService {
             Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), "");
+
+            // Manually create the history to avoid delays (database is not synchronized with code)
+            List<JsonNode> history = getHistory(ticket.getId());
+            history.add(ticketHistoryService.convertToJsonNode(actionLog));
+
+            // save the data
             ticketHistoryService.createTicketHistory(actionLog);
             ticket.setStatus(TicketStatus.valueOf(action));
             Ticket returnTicket = ticketRepository.save(ticket);
-            returnTicket = ticketRepository.findById(returnTicket.getId()).orElse(null);
             if (returnTicket.getStatus().equals(TicketStatus.RESOLVED)) {
-                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), ticketHistoryService.convertToJsonNode(actionLog), "");
+                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), history, "");
             } else {
                 sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), "");
-            }    
+            }            
             return returnTicket;
         }
     }
@@ -153,12 +166,17 @@ public class TicketService {
             Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), comments);
+
+            // Manually create the history to avoid delays (database is not synchronized with code)
+            List<JsonNode> history = getHistory(ticket.getId());
+            history.add(ticketHistoryService.convertToJsonNode(actionLog));
+
+            // save the data
             ticketHistoryService.createTicketHistory(actionLog);
             ticket.setStatus(TicketStatus.valueOf(action));
             Ticket returnTicket = ticketRepository.save(ticket);
-            returnTicket = ticketRepository.findById(returnTicket.getId()).orElse(null);
             if (returnTicket.getStatus().equals(TicketStatus.RESOLVED)) {
-                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), ticketHistoryService.convertToJsonNode(actionLog), comments);
+                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), history, comments);
             } else {
                 sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), comments);
             }            
@@ -230,7 +248,7 @@ public class TicketService {
 
     // Create the notification email for ticket resolution and send it via JMS 
     // to notificationmicroservice to be emailed to the USER
-    public void sendTicketResolutionEmail(Ticket ticket, Employee recipient, JsonNode resolveTicketHistory, String comments) {
+    public void sendTicketResolutionEmail(Ticket ticket, Employee recipient, List<JsonNode> ticketHistory, String comments) {
         String recipientEmailAddress = recipient.getEmail();
         String emailSubject = ticket.getStatus().name() + " ticket ID: " + ticket.getId();
         String emailBody = "<h2>Resolving ticket ID: " + ticket.getId() + "</h2>" 
@@ -240,9 +258,8 @@ public class TicketService {
             + "Priority: " + ticket.getPriority() + "<br>"
             + "Category: " + ticket.getCategory() + "<br>"
             + "comments: " + comments + "</p>";
-        List<JsonNode> history = getHistory(ticket.getId());
-        history.add(resolveTicketHistory);
-        ResolutionEmail email = new ResolutionEmail(List.of(recipientEmailAddress), emailBody, emailSubject, convertToJsonNode(ticket), history);
+
+        ResolutionEmail email = new ResolutionEmail(List.of(recipientEmailAddress), emailBody, emailSubject, convertToJsonNode(ticket), ticketHistory);
         try {
             messageSender.sendResolutionEmailToNotificationMicroservice(email);
         } catch (Exception e) {

@@ -20,8 +20,8 @@ public class QuartzConfig {
     @Bean
     public Trigger checkTicketsTrigger() {
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder
-                .cronSchedule("0 * * * * ?"); //for testing purposes, refresh every minute
-                // .cronSchedule("0 0 8 ? * MON"); 
+                // .cronSchedule("0 * * * * ?"); //for testing purposes, refresh every minute
+                .cronSchedule("0 0 8 ? * MON"); 
 
         return TriggerBuilder.newTrigger()
                 .forJob(checkTicketsJobDetail())

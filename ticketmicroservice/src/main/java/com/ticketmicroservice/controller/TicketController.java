@@ -33,7 +33,7 @@ public class TicketController {
     TicketService ticketService;
 
     // Service for domain.TicketHistory - CRD operations available through Service
-    // (Update not allowed, personal implementation as this is a history object and shouldn't rewrite history unless corrupted data)
+    // (Update not allowed, business-decision as this is a history object and shouldn't rewrite history unless data is corrupted)
     // Assume data has not been corrupted for the scale of this project
     @Autowired
     TicketHistoryService ticketHistoryService;

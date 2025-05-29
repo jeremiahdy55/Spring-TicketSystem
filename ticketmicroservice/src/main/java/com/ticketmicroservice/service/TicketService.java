@@ -128,13 +128,14 @@ public class TicketService {
             return null;
         } else {
             Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-            ticket.setStatus(TicketStatus.valueOf(action));
-            Ticket returnTicket = ticketRepository.save(ticket);
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), "");
             ticketHistoryService.createTicketHistory(actionLog);
+            ticket.setStatus(TicketStatus.valueOf(action));
+            Ticket returnTicket = ticketRepository.save(ticket);
+            returnTicket = ticketRepository.findById(returnTicket.getId()).orElse(null);
             if (returnTicket.getStatus().equals(TicketStatus.RESOLVED)) {
-                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), "");
+                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), ticketHistoryService.convertToJsonNode(actionLog), "");
             } else {
                 sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), "");
             }    
@@ -150,13 +151,14 @@ public class TicketService {
             return null;
         } else {
             Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-            ticket.setStatus(TicketStatus.valueOf(action));
-            Ticket returnTicket = ticketRepository.save(ticket);
             Employee actionBy = employeeRepository.findById(employeeId).orElse(null);
             TicketHistory actionLog = new TicketHistory(ticket, TicketHistoryAction.valueOf(action), actionBy, new Date(), comments);
             ticketHistoryService.createTicketHistory(actionLog);
+            ticket.setStatus(TicketStatus.valueOf(action));
+            Ticket returnTicket = ticketRepository.save(ticket);
+            returnTicket = ticketRepository.findById(returnTicket.getId()).orElse(null);
             if (returnTicket.getStatus().equals(TicketStatus.RESOLVED)) {
-                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), comments);
+                sendTicketResolutionEmail(returnTicket, returnTicket.getCreatedBy(), ticketHistoryService.convertToJsonNode(actionLog), comments);
             } else {
                 sendTicketLifecycleEmail(returnTicket, returnTicket.getCreatedBy(), comments);
             }            
@@ -228,7 +230,7 @@ public class TicketService {
 
     // Create the notification email for ticket resolution and send it via JMS 
     // to notificationmicroservice to be emailed to the USER
-    public void sendTicketResolutionEmail(Ticket ticket, Employee recipient, String comments) {
+    public void sendTicketResolutionEmail(Ticket ticket, Employee recipient, JsonNode resolveTicketHistory, String comments) {
         String recipientEmailAddress = recipient.getEmail();
         String emailSubject = ticket.getStatus().name() + " ticket ID: " + ticket.getId();
         String emailBody = "<h2>Resolving ticket ID: " + ticket.getId() + "</h2>" 
@@ -238,7 +240,9 @@ public class TicketService {
             + "Priority: " + ticket.getPriority() + "<br>"
             + "Category: " + ticket.getCategory() + "<br>"
             + "comments: " + comments + "</p>";
-        ResolutionEmail email = new ResolutionEmail(List.of(recipientEmailAddress), emailBody, emailSubject, convertToJsonNode(ticket), getHistory(ticket.getId()));
+        List<JsonNode> history = getHistory(ticket.getId());
+        history.add(resolveTicketHistory);
+        ResolutionEmail email = new ResolutionEmail(List.of(recipientEmailAddress), emailBody, emailSubject, convertToJsonNode(ticket), history);
         try {
             messageSender.sendResolutionEmailToNotificationMicroservice(email);
         } catch (Exception e) {

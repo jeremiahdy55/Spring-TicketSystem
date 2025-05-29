@@ -27,13 +27,10 @@ import com.ticketmicroservice.email.ResolutionEmail;
 import com.ticketmicroservice.email.SimpleEmail;
 import com.ticketmicroservice.jms.MessageSender;
 import com.ticketmicroservice.repository.EmployeeRepository;
-import com.ticketmicroservice.repository.TicketHistoryRepository;
 import com.ticketmicroservice.repository.TicketRepository;
 
 @Service
 public class TicketService {
-
-    private final TicketHistoryRepository ticketHistoryRepository;
 
     @Autowired
     TicketRepository ticketRepository; // REPOSITORY //
@@ -47,12 +44,6 @@ public class TicketService {
     // For communication between ticketmicroservice and notificationmicroservice via JMS
     @Autowired
     MessageSender messageSender;
-
-
-    TicketService(TicketHistoryRepository ticketHistoryRepository) {
-        this.ticketHistoryRepository = ticketHistoryRepository;
-    }
-
 
     /*********************************** DELETE METHODS ***********************************/
     public void deleteTicket(Long id) {

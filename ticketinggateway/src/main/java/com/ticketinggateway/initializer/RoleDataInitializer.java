@@ -7,7 +7,6 @@ import com.ticketinggateway.domain.Role;
 import com.ticketinggateway.domain.RoleName;
 import com.ticketinggateway.repository.RoleRepository;
 
-
 // This component will create the roles for the Employees
 @Component
 public class RoleDataInitializer {

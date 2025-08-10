@@ -9,7 +9,7 @@ Project Duration: May 2025 (one month)
 - [Project Overview](#1-project-overview)
 - [Project Architecture](#2-project-architecture)
 - [Installation, Setup, & Run](#3-installation-setup--run)
-- [Learnings & Future Steps](#4-installation--run)
+- [Learnings & Future Steps](#4-learnings--future-steps)
 
 ## 1. Project Overview
 This project was designed as an introductory experience to developing microservice applications using the *Spring-Boot* framework. It models an online IT ticketing system for internal company use. Employee profiles are assigned one or more roles, each associated with possible actions and permissions:
@@ -95,7 +95,7 @@ The frontend is accessible at `http://localhost:8383`. You may register a new us
 - username: `master`
 - password: `master`
 
-## 4. Future Steps
+## 4. Learnings & Future Steps
 
 ### Improvements on Project Structure
  - Implement common library for dependency injection

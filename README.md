@@ -29,11 +29,6 @@ Employees can submit IT help tickets, which are then reviewed by managers. At th
 
 Throughout the ticket’s lifecycle, any participating employee can view the ticket’s details and complete historical record. Email notifications are automatically sent to all relevant parties whenever the ticket status changes, ensuring smooth communication and workflow.
 
-The system is built using multiple microservices and incorporates the following technologies: Spring-Boot for service development, Spring Security for authentication and authorization, MySQL for data storage, ActiveMQ for inter-service messaging, Quartz for job scheduling, iText for PDF generation, Jcakson for JSON seralization, Spring data JPA for database access
-
-
-Across the microservices used, this project used the Spring-Boot project framework, Spring Security, MySQL database, ActiveMQ for inter-microservice communication, Quartz job scheduling, iText for PDF generation, and grimace.
-
 ## 2. Project Architecture
 
 The project consists of three microservice applications. Each microservice is coded in Java and built on the *Spring-Boot* framework. The frontend microservice (`ticketinggateway`) additionally utilizes JavaScript as part of the served `.jsp` files. The microservices and their functions can be seen here:
